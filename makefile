@@ -1,3 +1,3 @@
 .PHONY: dev
 dev:
-	go build -o ./tmp/main ./main.go && air
+	go build -o ./tmp/main && air
