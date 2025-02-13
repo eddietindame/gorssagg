@@ -1,4 +1,4 @@
-package main
+package rss
 
 import (
 	"context"
@@ -12,12 +12,12 @@ import (
 	"github.com/google/uuid"
 )
 
-func startScraping(
+func StartScraping(
 	db *database.Queries,
 	concurrency int,
 	timeBetweenRequest time.Duration,
 ) {
-	log.Printf("Scraping on %v goroutines every %s duration", concurrency, timeBetweenRequest)
+	log.Printf("Scraping on %v goroutines every %s duration\n", concurrency, timeBetweenRequest)
 	ticker := time.NewTicker(timeBetweenRequest)
 	for ; ; <-ticker.C {
 		feeds, err := db.GetNextFeedsToFetch(
@@ -63,7 +63,7 @@ func scrapeFeed(db *database.Queries, wg *sync.WaitGroup, feed database.Feed) {
 
 		pubAt, err := time.Parse(time.RFC1123Z, item.PubDate)
 		if err != nil {
-			log.Printf("Error parsing date %v with err %v:", item.PubDate, err)
+			log.Printf("Error parsing date %v with err %v\n", item.PubDate, err)
 			continue
 		}
 
@@ -85,5 +85,5 @@ func scrapeFeed(db *database.Queries, wg *sync.WaitGroup, feed database.Feed) {
 		}
 	}
 
-	log.Printf("Feed %s collected, %v posts found", feed.Name, len(rssFeed.Channel.Item))
+	log.Printf("Feed %s collected, %v posts found\n", feed.Name, len(rssFeed.Channel.Item))
 }
