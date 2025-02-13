@@ -27,3 +27,15 @@ func (apiCfg *APIConfig) MiddlewareAuth(handler authHandler) http.HandlerFunc {
 		handler(w, r, user)
 	}
 }
+
+func MiddlewareSessionAuth(handler http.Handler) http.Handler {
+	return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+		session, _ := Store.Get(r, "session")
+		username, ok := session.Values["username"].(string)
+		if !ok || username == "" {
+			http.Redirect(w, r, "/login", http.StatusSeeOther)
+			return
+		}
+		handler.ServeHTTP(w, r)
+	})
+}

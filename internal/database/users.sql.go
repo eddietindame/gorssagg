@@ -13,18 +13,19 @@ import (
 )
 
 const createUser = `-- name: CreateUser :one
-INSERT INTO users (id, created_at, updated_at, name, api_key)
-VALUES ($1, $2, $3, $4,
+INSERT INTO users (id, created_at, updated_at, username, password, api_key)
+VALUES ($1, $2, $3, $4, $5,
   encode(sha256(random()::text::bytea), 'hex')
 )
-RETURNING id, created_at, updated_at, name, api_key
+RETURNING id, created_at, updated_at, api_key, password, username
 `
 
 type CreateUserParams struct {
 	ID        uuid.UUID
 	CreatedAt time.Time
 	UpdatedAt time.Time
-	Name      string
+	Username  string
+	Password  string
 }
 
 func (q *Queries) CreateUser(ctx context.Context, arg CreateUserParams) (User, error) {
@@ -32,21 +33,23 @@ func (q *Queries) CreateUser(ctx context.Context, arg CreateUserParams) (User, e
 		arg.ID,
 		arg.CreatedAt,
 		arg.UpdatedAt,
-		arg.Name,
+		arg.Username,
+		arg.Password,
 	)
 	var i User
 	err := row.Scan(
 		&i.ID,
 		&i.CreatedAt,
 		&i.UpdatedAt,
-		&i.Name,
 		&i.ApiKey,
+		&i.Password,
+		&i.Username,
 	)
 	return i, err
 }
 
 const getUserByApiKey = `-- name: GetUserByApiKey :one
-SELECT id, created_at, updated_at, name, api_key FROM users WHERE api_key = $1
+SELECT id, created_at, updated_at, api_key, password, username FROM users WHERE api_key = $1
 `
 
 func (q *Queries) GetUserByApiKey(ctx context.Context, apiKey string) (User, error) {
@@ -56,8 +59,20 @@ func (q *Queries) GetUserByApiKey(ctx context.Context, apiKey string) (User, err
 		&i.ID,
 		&i.CreatedAt,
 		&i.UpdatedAt,
-		&i.Name,
 		&i.ApiKey,
+		&i.Password,
+		&i.Username,
 	)
 	return i, err
+}
+
+const getUserPassword = `-- name: GetUserPassword :one
+SELECT password FROM users WHERE username = $1
+`
+
+func (q *Queries) GetUserPassword(ctx context.Context, username string) (string, error) {
+	row := q.db.QueryRowContext(ctx, getUserPassword, username)
+	var password string
+	err := row.Scan(&password)
+	return password, err
 }

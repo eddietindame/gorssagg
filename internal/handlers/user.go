@@ -29,7 +29,7 @@ func (apiCfg *APIConfig) CreateUser(w http.ResponseWriter, r *http.Request) {
 		ID:        uuid.New(),
 		CreatedAt: ts,
 		UpdatedAt: ts,
-		Name:      params.Name,
+		Username:  params.Name,
 	})
 	if err != nil {
 		respondWithError(w, 400, fmt.Sprintf("Error creating user: %v", err))

@@ -8,8 +8,11 @@ import (
 func setupPagesRouter(apiCfg handlers.APIConfig) *chi.Mux {
 	pagesRouter := chi.NewRouter()
 	pagesRouter.Get("/login", handlers.LoginPageHandler)
+	pagesRouter.Post("/login", apiCfg.LoginHandler)
+	pagesRouter.Get("/logout", handlers.LogoutHandler)
 	pagesRouter.Get("/register", handlers.RegisterPageHandler)
-	pagesRouter.Get("/dashboard", apiCfg.MiddlewareAuth(handlers.DashboardPageHandler))
+	pagesRouter.Post("/register", apiCfg.RegisterHandler)
+	pagesRouter.With(handlers.MiddlewareSessionAuth).Get("/dashboard", handlers.DashboardPageHandler)
 
 	return pagesRouter
 }
