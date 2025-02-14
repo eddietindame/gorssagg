@@ -13,4 +13,4 @@ templ-generate:
 .PHONY: build
 build:
 	make templ-generate
-	go build -ldflags "-X main.environment=production" -o ./bin/$(APP_NAME) ./cmd/main.go
+	go build -ldflags "-X internal/env.Environment=production" -o ./bin/$(APP_NAME) ./cmd/main.go

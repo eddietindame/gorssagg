@@ -5,14 +5,17 @@ import (
 
 	"github.com/a-h/templ"
 	"github.com/eddietindame/gorssagg/internal/templates"
+	"github.com/gorilla/csrf"
 )
 
+var csrfFormKey = "gorilla.csrf.Token"
+
 func LoginPageHandler(w http.ResponseWriter, r *http.Request) {
-	templ.Handler(templates.Login()).ServeHTTP(w, r)
+	templ.Handler(templates.Login(csrf.Token(r), csrfFormKey)).ServeHTTP(w, r)
 }
 
 func RegisterPageHandler(w http.ResponseWriter, r *http.Request) {
-	templ.Handler(templates.Register()).ServeHTTP(w, r)
+	templ.Handler(templates.Register(csrf.Token(r), csrfFormKey)).ServeHTTP(w, r)
 }
 
 func DashboardPageHandler(w http.ResponseWriter, r *http.Request) {

@@ -7,6 +7,7 @@ import (
 	"os"
 	"time"
 
+	"github.com/eddietindame/gorssagg/internal/config"
 	"github.com/eddietindame/gorssagg/internal/database"
 	"github.com/eddietindame/gorssagg/internal/handlers"
 	"github.com/eddietindame/gorssagg/internal/router"
@@ -16,9 +17,6 @@ import (
 
 	_ "github.com/lib/pq"
 )
-
-// Set to production at build time
-var environment = "development"
 
 func main() {
 	godotenv.Load()
@@ -32,10 +30,10 @@ func main() {
 	}
 	handlers.Store = sessions.NewCookieStore([]byte(sessionKey))
 	handlers.Store.Options = &sessions.Options{Path: "/",
-		HttpOnly: true,                            // Prevent JavaScript from accessing the cookie
-		Secure:   !(environment == "development"), // Send only over HTTPS
-		SameSite: http.SameSiteStrictMode,         // Prevent CSRF attacks
-		MaxAge:   3600,                            // Session expires in 1 hour
+		HttpOnly: true,                               // Prevent JavaScript from accessing the cookie
+		Secure:   config.Environment == "production", // Send only over HTTPS
+		SameSite: http.SameSiteStrictMode,            // Prevent CSRF attacks
+		MaxAge:   3600,                               // Session expires in 1 hour
 	}
 
 	db := database.GetQueries()
