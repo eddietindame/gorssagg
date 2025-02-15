@@ -36,7 +36,14 @@ func (apiCfg *APIConfig) LoginHandler(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
+	session.Values["authenticated"] = true
 	session.Values["username"] = username
+
+	if r.FormValue("remember_me") == "true" {
+		session.Options.MaxAge = 86400 * 30 // 30 days
+	} else {
+		session.Options.MaxAge = 0 // session
+	}
 
 	err = session.Save(r, w)
 	if err != nil {
@@ -50,9 +57,8 @@ func (apiCfg *APIConfig) LoginHandler(w http.ResponseWriter, r *http.Request) {
 
 func LogoutHandler(w http.ResponseWriter, r *http.Request) {
 	session, _ := Store.Get(r, "session")
-	delete(session.Values, "username")
+	session.Options.MaxAge = -1 // Expire session immediately
 	session.Save(r, w)
-
 	http.Redirect(w, r, "/login", http.StatusSeeOther)
 }
 

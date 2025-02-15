@@ -55,7 +55,7 @@ func Login(csrfToken string, csrfKey string) templ.Component {
 		if templ_7745c5c3_Err != nil {
 			return templ_7745c5c3_Err
 		}
-		templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 3, "\"> <input type=\"text\" name=\"username\" placeholder=\"Username\" required> <input type=\"password\" name=\"password\" placeholder=\"Password\" required> <button type=\"submit\">Login</button></form></main>")
+		templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 3, "\"> <input type=\"text\" name=\"username\" placeholder=\"Username\" required> <input type=\"password\" name=\"password\" placeholder=\"Password\" required> <label><input type=\"checkbox\" name=\"remember_me\" value=\"true\"> Remember Me</label> <button type=\"submit\">Login</button></form></main>")
 		if templ_7745c5c3_Err != nil {
 			return templ_7745c5c3_Err
 		}

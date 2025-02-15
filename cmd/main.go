@@ -29,7 +29,7 @@ func main() {
 		log.Fatal("SESSION_KEY not found in env")
 	}
 	handlers.Store = sessions.NewCookieStore([]byte(sessionKey))
-	handlers.Store.Options = &sessions.Options{Path: "/",
+	handlers.Store.Options = &sessions.Options{
 		HttpOnly: true,                               // Prevent JavaScript from accessing the cookie
 		Secure:   config.Environment == "production", // Send only over HTTPS
 		SameSite: http.SameSiteStrictMode,            // Prevent CSRF attacks
