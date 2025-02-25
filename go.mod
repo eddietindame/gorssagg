@@ -4,6 +4,7 @@ go 1.23.6
 
 require (
 	github.com/a-h/templ v0.3.833
+	github.com/boj/redistore v1.4.0
 	github.com/go-chi/chi/v5 v5.2.1
 	github.com/go-chi/cors v1.2.1
 	github.com/google/uuid v1.6.0
@@ -14,4 +15,7 @@ require (
 	golang.org/x/crypto v0.33.0
 )
 
-require github.com/gorilla/securecookie v1.1.2 // indirect
+require (
+	github.com/gomodule/redigo v1.9.2 // indirect
+	github.com/gorilla/securecookie v1.1.2 // indirect
+)
