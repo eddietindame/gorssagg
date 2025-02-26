@@ -1,0 +1,30 @@
+version: "3.8"
+
+services:
+  go-app:
+    build:
+      context: .
+      dockerfile: dev.dockerfile
+    command: make dev
+    volumes:
+      - .:/usr/app
+    extends:
+      file: docker-compose.yml
+      service: go-app
+
+  redis:
+    extends:
+      file: docker-compose.yml
+      service: redis
+
+  postgres:
+    extends:
+      file: docker-compose.yml
+      service: postgres
+
+volumes:
+  redis-data:
+  postgres-data:
+
+networks:
+  app-network:

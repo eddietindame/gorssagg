@@ -1,6 +1,8 @@
 package config
 
 import (
+	"cmp"
+	"fmt"
 	"log"
 	"os"
 
@@ -9,7 +11,7 @@ import (
 
 // Set to production at build time
 var Environment = "development"
-var PORT, DB_URL, REDIS_HOST, REDIS_USERNAME, REDIS_PASSWORD, SESSION_KEY, CSRF_KEY string
+var PORT, DB_URL, POSTGRES_HOST, POSTGRES_PORT, POSTGRES_USER, POSTGRES_PASSWORD, POSTGRES_DB, REDIS_HOST, REDIS_USERNAME, REDIS_PASSWORD, SESSION_KEY, CSRF_KEY string
 
 func InitEnv() {
 	godotenv.Load()
@@ -19,9 +21,29 @@ func InitEnv() {
 		log.Fatal("PORT not found in env")
 	}
 
-	DB_URL = os.Getenv("DB_URL")
+	POSTGRES_HOST = os.Getenv("POSTGRES_HOST")
+	POSTGRES_PORT = cmp.Or(os.Getenv("POSTGRES_PORT"), "5432")
+	POSTGRES_USER = os.Getenv("POSTGRES_USER")
+	POSTGRES_PASSWORD = os.Getenv("POSTGRES_PASSWORD")
+	POSTGRES_DB = os.Getenv("POSTGRES_DB")
+
+	if POSTGRES_USER != "" &&
+		POSTGRES_PASSWORD != "" &&
+		POSTGRES_HOST != "" &&
+		POSTGRES_DB != "" {
+		DB_URL = fmt.Sprintf(
+			"postgres://%s:%s@%s:%s/%s?sslmode=disable",
+			POSTGRES_USER,
+			POSTGRES_PASSWORD,
+			POSTGRES_HOST,
+			POSTGRES_PORT,
+			POSTGRES_DB,
+		)
+	} else {
+		DB_URL = os.Getenv("DB_URL")
+	}
 	if DB_URL == "" {
-		log.Fatal("DB_URL not found in env")
+		log.Fatal("DB_URL not found in env or could not be constructed")
 	}
 
 	REDIS_HOST = os.Getenv("REDIS_HOST")

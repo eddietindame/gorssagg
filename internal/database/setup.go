@@ -16,7 +16,9 @@ var (
 func getDB() *sql.DB {
 	once.Do(func() {
 		var err error
-		db, err = sql.Open("postgres", config.DB_URL)
+		db, _ = sql.Open("postgres", config.DB_URL)
+		// Open doesn't seem to return an error when there is no db connection
+		err = db.Ping()
 		if err != nil {
 			log.Fatal("Failed to open database connection:", err)
 		}
