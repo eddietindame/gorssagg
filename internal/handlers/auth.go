@@ -6,12 +6,10 @@ import (
 	"time"
 
 	"github.com/eddietindame/gorssagg/internal/database"
+	"github.com/eddietindame/gorssagg/internal/store"
 	"github.com/google/uuid"
-	"github.com/gorilla/sessions"
 	"golang.org/x/crypto/bcrypt"
 )
-
-var Store *sessions.CookieStore
 
 func (apiCfg *APIConfig) LoginHandler(w http.ResponseWriter, r *http.Request) {
 	username := r.FormValue("username")
@@ -29,7 +27,7 @@ func (apiCfg *APIConfig) LoginHandler(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	session, err := Store.Get(r, "session")
+	session, err := store.Store.Get(r, "session")
 	if err != nil {
 		log.Println(err)
 		http.Error(w, "Session error", http.StatusInternalServerError)
@@ -42,7 +40,7 @@ func (apiCfg *APIConfig) LoginHandler(w http.ResponseWriter, r *http.Request) {
 	if r.FormValue("remember_me") == "true" {
 		session.Options.MaxAge = 86400 * 30 // 30 days
 	} else {
-		session.Options.MaxAge = 0 // session
+		session.Options.MaxAge = 3600 // 1 hour
 	}
 
 	err = session.Save(r, w)
@@ -56,9 +54,19 @@ func (apiCfg *APIConfig) LoginHandler(w http.ResponseWriter, r *http.Request) {
 }
 
 func LogoutHandler(w http.ResponseWriter, r *http.Request) {
-	session, _ := Store.Get(r, "session")
+	session, err := store.Store.Get(r, "session")
+	if err != nil {
+		http.Error(w, "Session error", http.StatusInternalServerError)
+		return
+	}
+
 	session.Options.MaxAge = -1 // Expire session immediately
-	session.Save(r, w)
+	err = session.Save(r, w)
+	if err != nil {
+		http.Error(w, "Failed to clear session", http.StatusInternalServerError)
+		return
+	}
+
 	http.Redirect(w, r, "/login", http.StatusSeeOther)
 }
 

@@ -6,6 +6,7 @@ import (
 
 	"github.com/eddietindame/gorssagg/internal/auth"
 	"github.com/eddietindame/gorssagg/internal/database"
+	"github.com/eddietindame/gorssagg/internal/store"
 )
 
 type authHandler func(http.ResponseWriter, *http.Request, database.User)
@@ -30,11 +31,18 @@ func (apiCfg *APIConfig) MiddlewareAuth(handler authHandler) http.HandlerFunc {
 
 func MiddlewareSessionAuth(handler http.Handler) http.Handler {
 	return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
-		session, _ := Store.Get(r, "session")
-		if auth, ok := session.Values["authenticated"].(bool); !ok || !auth {
+		session, err := store.Store.Get(r, "session")
+		if err != nil {
+			http.Error(w, "Session error", http.StatusInternalServerError)
+			return
+		}
+
+		auth, ok := session.Values["authenticated"].(bool)
+		if !ok || !auth {
 			http.Redirect(w, r, "/login", http.StatusSeeOther)
 			return
 		}
+
 		handler.ServeHTTP(w, r)
 	})
 }

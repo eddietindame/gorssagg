@@ -1,32 +1,25 @@
 package router
 
 import (
-	"log"
-	"os"
-
 	"github.com/eddietindame/gorssagg/internal/config"
 	"github.com/eddietindame/gorssagg/internal/database"
 	"github.com/eddietindame/gorssagg/internal/handlers"
 	"github.com/go-chi/chi/v5"
+	"github.com/go-chi/chi/v5/middleware"
 	"github.com/go-chi/cors"
 	"github.com/gorilla/csrf"
 )
 
 func SetupRouter() *chi.Mux {
-	csrfKey := os.Getenv("CSRF_KEY")
-	if csrfKey == "" {
-		log.Fatal("CSRF_KEY not found in env")
-	}
-
-	db := database.GetQueries()
 	apiCfg := handlers.APIConfig{
-		DB: db,
+		DB: database.GetQueries(),
 	}
 
 	router := chi.NewRouter()
+	router.Use(middleware.Logger)
 	router.Use(
 		csrf.Protect(
-			[]byte(csrfKey),
+			[]byte(config.CSRF_KEY),
 			csrf.Secure(config.Environment == "production"),
 			csrf.HttpOnly(true),
 			csrf.SameSite(csrf.SameSiteStrictMode),

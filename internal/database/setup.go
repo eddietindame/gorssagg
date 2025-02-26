@@ -3,8 +3,9 @@ package database
 import (
 	"database/sql"
 	"log"
-	"os"
 	"sync"
+
+	"github.com/eddietindame/gorssagg/internal/config"
 )
 
 var (
@@ -14,13 +15,8 @@ var (
 
 func getDB() *sql.DB {
 	once.Do(func() {
-		dbUrl := os.Getenv("DB_URL")
-		if dbUrl == "" {
-			log.Fatal("DB_URL not found in env")
-		}
-
 		var err error
-		db, err = sql.Open("postgres", dbUrl)
+		db, err = sql.Open("postgres", config.DB_URL)
 		if err != nil {
 			log.Fatal("Failed to open database connection:", err)
 		}
