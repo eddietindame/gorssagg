@@ -19,6 +19,8 @@ func init() {
 }
 
 func main() {
+	store.InitRedis()
+	defer store.RedisClient.Close()
 	store.InitSessionStore()
 	defer store.Store.Close()
 

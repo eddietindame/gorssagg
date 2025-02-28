@@ -47,4 +47,5 @@ type User struct {
 	ApiKey    string
 	Password  string
 	Username  string
+	Email     string
 }

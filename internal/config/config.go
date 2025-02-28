@@ -11,7 +11,7 @@ import (
 
 // Set to production at build time
 var Environment = "development"
-var PORT, DB_URL, POSTGRES_HOST, POSTGRES_PORT, POSTGRES_USER, POSTGRES_PASSWORD, POSTGRES_DB, REDIS_HOST, REDIS_USERNAME, REDIS_PASSWORD, SESSION_KEY, CSRF_KEY string
+var PORT, HOST, DB_URL, POSTGRES_HOST, POSTGRES_PORT, POSTGRES_USER, POSTGRES_PASSWORD, POSTGRES_DB, REDIS_HOST, REDIS_USERNAME, REDIS_PASSWORD, SESSION_KEY, CSRF_KEY, EMAIL_ADDRESS, SMTP_USERNAME, SMTP_PASSWORD, SMTP_HOST, SMTP_PORT string
 
 func InitEnv() {
 	godotenv.Load()
@@ -19,6 +19,10 @@ func InitEnv() {
 	PORT = os.Getenv("PORT")
 	if PORT == "" {
 		log.Fatal("PORT not found in env")
+	}
+	HOST = os.Getenv("HOST")
+	if HOST == "" || HOST == "localhost" {
+		HOST = fmt.Sprintf("localhost:%s", PORT)
 	}
 
 	POSTGRES_HOST = os.Getenv("POSTGRES_HOST")
@@ -50,12 +54,10 @@ func InitEnv() {
 	if REDIS_HOST == "" {
 		log.Fatal("REDIS_HOST not found in env")
 	}
-
 	REDIS_USERNAME = os.Getenv("REDIS_USERNAME")
 	if REDIS_USERNAME == "" && Environment == "production" {
 		log.Fatal("REDIS_USERNAME not found in env")
 	}
-
 	REDIS_PASSWORD = os.Getenv("REDIS_PASSWORD")
 	if REDIS_PASSWORD == "" && Environment == "production" {
 		log.Fatal("REDIS_PASSWORD not found in env")
@@ -69,5 +71,26 @@ func InitEnv() {
 	CSRF_KEY = os.Getenv("CSRF_KEY")
 	if CSRF_KEY == "" {
 		log.Fatal("CSRF_KEY not found in env")
+	}
+
+	SMTP_HOST = os.Getenv("SMTP_HOST")
+	if CSRF_KEY == "" {
+		log.Fatal("SMTP_HOST not found in env")
+	}
+	SMTP_PORT = os.Getenv("SMTP_PORT")
+	if CSRF_KEY == "" {
+		log.Fatal("SMTP_PORT not found in env")
+	}
+	SMTP_USERNAME = os.Getenv("SMTP_USERNAME")
+	if CSRF_KEY == "" {
+		log.Fatal("SMTP_USERNAME not found in env")
+	}
+	SMTP_PASSWORD = os.Getenv("SMTP_PASSWORD")
+	if CSRF_KEY == "" {
+		log.Fatal("SMTP_PASSWORD not found in env")
+	}
+	EMAIL_ADDRESS = os.Getenv("EMAIL_ADDRESS")
+	if CSRF_KEY == "" {
+		log.Fatal("EMAIL_ADDRESS not found in env")
 	}
 }

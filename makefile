@@ -11,6 +11,22 @@ build-server:
 	make templ-generate
 	go build -ldflags "-X internal/env.Environment=production" -o ./bin/$(APP_NAME) ./cmd/main.go
 
+.PHONY: migrate-dev-up
+migrate-dev-up:
+	goose -dir ./sql/schema postgres "postgres://postgres:postgres@localhost:5432/gorssagg?sslmode=disable" up
+
+.PHONY: migrate-dev-down
+migrate-dev-down:
+	goose -dir ./sql/schema postgres "postgres://postgres:postgres@localhost:5432/gorssagg?sslmode=disable" down
+
+.PHONY: migrate-dev-down-all
+migrate-dev-down-all:
+	goose -dir ./sql/schema postgres "postgres://postgres:postgres@localhost:5432/gorssagg?sslmode=disable" down-to 0
+
+.PHONY: generate-queries
+generate-queries:
+	sqlc generate
+
 THIS_FILE := $(lastword $(MAKEFILE_LIST))
 .PHONY: help build up up-dev start down destroy stop restart logs logs-goserver logs-postgres logs-redis ps login-goserver db-shell login-redis
 help:
