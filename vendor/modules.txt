@@ -1,8 +1,22 @@
+# github.com/Oudwins/tailwind-merge-go v0.2.0
+## explicit; go 1.21.5
+github.com/Oudwins/tailwind-merge-go
+github.com/Oudwins/tailwind-merge-go/pkg/cache
+github.com/Oudwins/tailwind-merge-go/pkg/lru
+github.com/Oudwins/tailwind-merge-go/pkg/twmerge
 # github.com/a-h/templ v0.3.833
 ## explicit; go 1.23
 github.com/a-h/templ
 github.com/a-h/templ/runtime
 github.com/a-h/templ/safehtml
+# github.com/axzilla/templui v0.34.0
+## explicit; go 1.23.3
+github.com/axzilla/templui/components
+github.com/axzilla/templui/helpers
+github.com/axzilla/templui/icons
+github.com/axzilla/templui/internal/utils
+github.com/axzilla/templui/middleware
+github.com/axzilla/templui/utils
 # github.com/boj/redistore v1.4.0
 ## explicit; go 1.20
 github.com/boj/redistore
