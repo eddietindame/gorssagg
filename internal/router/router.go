@@ -3,6 +3,7 @@ package router
 import (
 	"net/http"
 
+	templMiddleware "github.com/axzilla/templui/middleware"
 	"github.com/eddietindame/gorssagg/internal/config"
 	"github.com/eddietindame/gorssagg/internal/database"
 	"github.com/eddietindame/gorssagg/internal/handlers"
@@ -38,6 +39,13 @@ func SetupRouter() *chi.Mux {
 			MaxAge:           300,
 		}),
 	)
+
+	if config.Environment == "production" {
+		cspConfig := templMiddleware.CSPConfig{
+			ScriptSrc: []string{"cdn.jsdelivr.net"},
+		}
+		router.Use(templMiddleware.WithCSP(cspConfig))
+	}
 
 	fs := http.FileServer(http.Dir("public"))
 	router.Handle("/public/*", http.StripPrefix("/public/", fs))

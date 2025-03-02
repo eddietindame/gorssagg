@@ -1,0 +1,25 @@
+package components
+
+import "github.com/axzilla/templui/utils"
+
+type LinkProps struct {
+	ID         string
+	Class      string
+	Attributes templ.Attributes
+	Text       string
+	Href       templ.SafeURL
+}
+
+templ Link(props LinkProps) {
+	<a
+		href={ props.Href }
+		if props.ID != "" {
+			id={ props.ID }
+		}
+		class={ utils.TwMerge(
+				"text-blue-500 underline visited:text-purple-500",
+				props.Class,
+			) }
+		{ props.Attributes... }
+	>{ props.Text }</a>
+}

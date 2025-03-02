@@ -1,13 +1,38 @@
 package templates
 
+import "github.com/axzilla/templui/components"
+
 templ Register(csrfToken string, csrfKey string) {
-	<h2>Register</h2>
-	<form action="/register" method="POST">
-		<input type="hidden" name={ csrfKey } value={ csrfToken }/>
-		<input type="text" name="username" placeholder="Username" required/>
-		<input type="email" name="email" placeholder="Email" required/>
-		<input type="password" name="password" placeholder="Password" required/>
-		<input type="password" name="password_confirm" placeholder="Confirm password" required/>
-		<button type="submit">Register</button>
-	</form>
+	<div class="max-w-md mx-auto flex flex-col gap-2 justify-center h-full pb-[40%] opacity-fade-in">
+		<h1 class="text-3xl font-serif">Register</h1>
+		<form action="/register" method="POST" class="flex flex-col gap-2">
+			<input type="hidden" name={ csrfKey } value={ csrfToken }/>
+			@components.Input(components.InputProps{
+				Name:        "username",
+				Placeholder: "Username",
+				Required:    true,
+			})
+			@components.Input(components.InputProps{
+				Name:        "email",
+				Placeholder: "Email",
+				Required:    true,
+			})
+			@components.Input(components.InputProps{
+				Type:        "password",
+				Name:        "password",
+				Placeholder: "Password",
+				Required:    true,
+			})
+			@components.Input(components.InputProps{
+				Type:        "password",
+				Name:        "password_confirm",
+				Placeholder: "Confirm password",
+				Required:    true,
+			})
+			@components.Button(components.ButtonProps{
+				Type: "submit",
+				Text: "Register",
+			})
+		</form>
+	</div>
 }

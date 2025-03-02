@@ -1,18 +1,54 @@
 package templates
 
+import "github.com/eddietindame/gorssagg/internal/templates/components"
+
+import (
+	templc "github.com/axzilla/templui/components"
+)
+
 templ Login(csrfToken string, csrfKey string) {
-	<div class="max-w-md mx-auto">
-		<h2>Login</h2>
-		<form action="/login" method="POST" class="flex flex-col">
+	<div class="max-w-md mx-auto flex flex-col gap-2 justify-center h-full pb-[40%] opacity-fade-in">
+		<h1 class="text-3xl font-serif">Login</h1>
+		<form action="/login" method="POST" class="flex flex-col gap-2">
 			<input type="hidden" name={ csrfKey } value={ csrfToken }/>
-			<input type="text" name="username" placeholder="Username" required/>
-			<input type="password" name="password" placeholder="Password" required/>
-			<label>
-				<input type="checkbox" name="remember_me" value="true"/> Remember Me
-			</label>
-			<button type="submit">Login</button>
+			@templc.Input(templc.InputProps{
+				Name:        "username",
+				Placeholder: "Username",
+				Required:    true,
+			})
+			@templc.Input(templc.InputProps{
+				Type:        "password",
+				Name:        "password",
+				Placeholder: "Password",
+				Required:    true,
+			})
+			@templc.Button(templc.ButtonProps{
+				Type: "submit",
+				Text: "Login",
+			})
+			<div class="flex items-center gap-2">
+				@templc.Checkbox(templc.CheckboxProps{
+					ID:      "remember-me",
+					Name:    "remember_me",
+					Checked: true,
+				})
+				@templc.Label(templc.LabelProps{
+					For:  "remember-me",
+					Text: "Remember me",
+				})
+			</div>
 		</form>
-		<a href="/forgot-password">Forgotten your password?</a>
-		<p>Don't have an account? <a href="/register">Register</a>.</p>
+		@components.Link(components.LinkProps{
+			Href: "/forgot-password",
+			Text: "Forgotten your password?",
+		})
+		<p>
+			Don't have an account? 
+			@components.Link(components.LinkProps{
+				Href: "/register",
+				Text: "Register",
+			})
+			.
+		</p>
 	</div>
 }

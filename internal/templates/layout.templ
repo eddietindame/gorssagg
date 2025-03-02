@@ -1,18 +1,22 @@
 package templates
 
+import "github.com/axzilla/templui/helpers"
+
 templ header(title string) {
 	<head>
 		<title>{ title }</title>
 		<meta charset="UTF-8"/>
 		<meta name="viewport" content="width=device-width, initial-scale=1.0"/>
 		<link rel="stylesheet" href="/public/css/styles.css"/>
+		<script defer src="https://cdn.jsdelivr.net/npm/@alpinejs/csp@3.x.x/dist/cdn.min.js"></script>
+		@helpers.ComponentScripts()
 	</head>
 }
 
 templ Layout(contents templ.Component, title string) {
 	@header(title)
 	<body class="flex flex-col h-full">
-		<main class="flex-1 container m-width-3xl mx-auto">
+		<main class="flex-1 container m-width-3xl mx-auto p-4">
 			@contents
 		</main>
 	</body>
