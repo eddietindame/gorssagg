@@ -1,6 +1,8 @@
 package router
 
 import (
+	"net/http"
+
 	"github.com/eddietindame/gorssagg/internal/config"
 	"github.com/eddietindame/gorssagg/internal/database"
 	"github.com/eddietindame/gorssagg/internal/handlers"
@@ -37,6 +39,8 @@ func SetupRouter() *chi.Mux {
 		}),
 	)
 
+	fs := http.FileServer(http.Dir("public"))
+	router.Handle("/public/*", http.StripPrefix("/public/", fs))
 	router.Mount("/v1", setupV1Router(apiCfg))
 	router.Mount("/", setupPagesRouter(apiCfg))
 

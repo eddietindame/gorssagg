@@ -29,14 +29,14 @@ func Reset(csrfToken string, csrfKey string, resetToken string) templ.Component 
 			templ_7745c5c3_Var1 = templ.NopComponent
 		}
 		ctx = templ.ClearChildren(ctx)
-		templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 1, "<main><h2>Reset your password</h2><form action=\"/reset-password\" method=\"POST\"><input type=\"hidden\" name=\"")
+		templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 1, "<h2>Reset your password</h2><form action=\"/reset-password\" method=\"POST\"><input type=\"hidden\" name=\"")
 		if templ_7745c5c3_Err != nil {
 			return templ_7745c5c3_Err
 		}
 		var templ_7745c5c3_Var2 string
 		templ_7745c5c3_Var2, templ_7745c5c3_Err = templ.JoinStringErrs(csrfKey)
 		if templ_7745c5c3_Err != nil {
-			return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/templates/reset.templ`, Line: 7, Col: 40}
+			return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/templates/reset.templ`, Line: 6, Col: 37}
 		}
 		_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var2))
 		if templ_7745c5c3_Err != nil {
@@ -49,7 +49,7 @@ func Reset(csrfToken string, csrfKey string, resetToken string) templ.Component 
 		var templ_7745c5c3_Var3 string
 		templ_7745c5c3_Var3, templ_7745c5c3_Err = templ.JoinStringErrs(csrfToken)
 		if templ_7745c5c3_Err != nil {
-			return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/templates/reset.templ`, Line: 7, Col: 58}
+			return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/templates/reset.templ`, Line: 6, Col: 57}
 		}
 		_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var3))
 		if templ_7745c5c3_Err != nil {
@@ -62,13 +62,13 @@ func Reset(csrfToken string, csrfKey string, resetToken string) templ.Component 
 		var templ_7745c5c3_Var4 string
 		templ_7745c5c3_Var4, templ_7745c5c3_Err = templ.JoinStringErrs(resetToken)
 		if templ_7745c5c3_Err != nil {
-			return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/templates/reset.templ`, Line: 8, Col: 57}
+			return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/templates/reset.templ`, Line: 7, Col: 54}
 		}
 		_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var4))
 		if templ_7745c5c3_Err != nil {
 			return templ_7745c5c3_Err
 		}
-		templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 4, "\"> <input type=\"password\" name=\"password\" placeholder=\"New password\" required> <input type=\"password\" name=\"password_confirm\" placeholder=\"Confirm new password\" required> <button type=\"submit\">Reset</button></form></main>")
+		templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 4, "\"> <input type=\"password\" name=\"password\" placeholder=\"New password\" required> <input type=\"password\" name=\"password_confirm\" placeholder=\"Confirm new password\" required> <button type=\"submit\">Reset</button></form>")
 		if templ_7745c5c3_Err != nil {
 			return templ_7745c5c3_Err
 		}

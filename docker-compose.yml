@@ -1,16 +1,14 @@
-version: "3.8"
+version: '3.8'
 
 services:
   go-app:
     build: .
-    command: make build-server
     container_name: go_server
     ports:
-      - "8080:8080"
+      - '8080:8080'
     depends_on:
       - redis
       - postgres
-    entrypoint: ["/usr/app/entrypoint.sh"]
     environment:
       - REDIS_HOST=redis:6379
       - REDIS_USERNAME=redis
@@ -28,7 +26,7 @@ services:
       context: ./services/redis
       dockerfile: dockerfile
     ports:
-      - "6379:6379"
+      - '6379:6379'
     environment:
       - REDIS_USERNAME=redis
       - REDIS_PASSWORD=redis
@@ -42,7 +40,7 @@ services:
     image: postgres:latest
     container_name: postgres_db
     ports:
-      - "5432:5432"
+      - '5432:5432'
     environment:
       - POSTGRES_USER=postgres
       - POSTGRES_PASSWORD=postgres

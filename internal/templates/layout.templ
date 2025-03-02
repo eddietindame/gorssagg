@@ -1,0 +1,19 @@
+package templates
+
+templ header(title string) {
+	<head>
+		<title>{ title }</title>
+		<meta charset="UTF-8"/>
+		<meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+		<link rel="stylesheet" href="/public/css/styles.css"/>
+	</head>
+}
+
+templ Layout(contents templ.Component, title string) {
+	@header(title)
+	<body class="flex flex-col h-full">
+		<main class="flex-1 container m-width-3xl mx-auto">
+			@contents
+		</main>
+	</body>
+}

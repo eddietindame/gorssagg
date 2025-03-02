@@ -1,12 +1,10 @@
 package templates
 
 templ Forgot(csrfToken string, csrfKey string) {
-    <main>
-        <h2>Forgotten your password?</h2>
-        <form action="/forgot-password" method="POST">
-            <input type="hidden" name={csrfKey} value={csrfToken}>
-            <input type="text" name="email" placeholder="Email" required>
-            <button type="submit">Submit</button>
-        </form>
-    </main>
+	<h2>Forgotten your password?</h2>
+	<form action="/forgot-password" method="POST">
+		<input type="hidden" name={ csrfKey } value={ csrfToken }/>
+		<input type="text" name="email" placeholder="Email" required/>
+		<button type="submit">Submit</button>
+	</form>
 }

@@ -1,15 +1,38 @@
+tailwindCmd = npx @tailwindcss/cli
+tailwindMinify = --minify
+prodFlags = -ldflags "-X internal/env.Environment=production"
+out = ./bin/gorssagg
+
 .PHONY: dev
 dev:
-	go build -o ./tmp/main ./cmd/main.go && air
+	air
+
+.PHONY: build-app
+build-app:
+	make tailwind
+	make templ-generate
+	go build ${prodFlags} -o ${out} ./cmd/main.go
+
+.PHONY: build-app-dev
+build-app-dev:
+	make build-app prodFlags="" out=./tmp/main tailwindMinify=""
+	templ generate --notify-proxy
 
 .PHONY: templ-generate
 templ-generate:
 	templ generate
 
-.PHONY: build-server
-build-server:
-	make templ-generate
-	go build -ldflags "-X internal/env.Environment=production" -o ./bin/$(APP_NAME) ./cmd/main.go
+.PHONY: tailwind
+tailwind:
+	$(tailwindCmd) -i ./main.css -o ./public/css/styles.css $(tailwindWatch) $(tailwindMinify)
+
+.PHONY: tailwind-watch
+tailwind-watch:
+	make tailwind tailwindWatch=--watch
+
+.PHONY: fetch-tailwind
+fetch-tailwind:
+	curl -sLO https://github.com/tailwindlabs/tailwindcss/releases/latest/download/tailwindcss-linux-arm64-musl
 
 .PHONY: migrate-dev-up
 migrate-dev-up:
@@ -28,15 +51,15 @@ generate-queries:
 	sqlc generate
 
 THIS_FILE := $(lastword $(MAKEFILE_LIST))
-.PHONY: help build up up-dev start down destroy stop restart logs logs-goserver logs-postgres logs-redis ps login-goserver db-shell login-redis
+.PHONY: help build up up-dev start down destroy stop restart logs logs-goserver logs-postgres logs-redis ps login-goserver db-shell login-redis prune
 help:
 	make -pRrq  -f $(THIS_FILE) : 2>/dev/null | awk -v RS= -F: '/^# File/,/^# Finished Make data base/ {if ($$1 !~ "^[#.]") {print $$1}}' | sort | egrep -v -e '^[^[:alnum:]]' -e '^$@$$'
 build:
-	docker-compose build $(c)
+	docker-compose $(dockerComposeFile) build $(c)
 build-dev:
-	docker-compose -f docker-compose.dev.yml build $(c)
+	make build dockerComposeFile="-f docker-compose.dev.yml"
 up:
-	docker-compose up -d $(c)
+	docker-compose $(dockerComposeFile) up -d $(c)
 up-dev:
 	docker-compose -f docker-compose.dev.yml up $(c)
 start:
@@ -53,11 +76,11 @@ restart:
 logs:
 	docker-compose logs --tail=100 -f $(c)
 logs-goserver:
-	docker-compose logs --tail=100 -f go-app
+	make logs c=go-app
 logs-postgres:
-	docker-compose logs --tail=100 -f postgres
+	make logs c=postgres
 logs-redis:
-	docker-compose logs --tail=100 -f redis
+	make logs c=redis
 ps:
 	docker-compose ps
 login-goserver:
@@ -66,3 +89,7 @@ db-shell:
 	docker-compose exec postgres psql -U postgres
 login-redis:
 	docker-compose exec redis /bin/bash
+prune:
+	docker image prune -f
+	docker container prune -f
+	docker builder prune -f

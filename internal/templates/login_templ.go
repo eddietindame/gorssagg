@@ -29,14 +29,14 @@ func Login(csrfToken string, csrfKey string) templ.Component {
 			templ_7745c5c3_Var1 = templ.NopComponent
 		}
 		ctx = templ.ClearChildren(ctx)
-		templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 1, "<main><h2>Login</h2><form action=\"/login\" method=\"POST\"><input type=\"hidden\" name=\"")
+		templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 1, "<div class=\"max-w-md mx-auto\"><h2>Login</h2><form action=\"/login\" method=\"POST\" class=\"flex flex-col\"><input type=\"hidden\" name=\"")
 		if templ_7745c5c3_Err != nil {
 			return templ_7745c5c3_Err
 		}
 		var templ_7745c5c3_Var2 string
 		templ_7745c5c3_Var2, templ_7745c5c3_Err = templ.JoinStringErrs(csrfKey)
 		if templ_7745c5c3_Err != nil {
-			return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/templates/login.templ`, Line: 7, Col: 40}
+			return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/templates/login.templ`, Line: 7, Col: 38}
 		}
 		_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var2))
 		if templ_7745c5c3_Err != nil {
@@ -55,7 +55,7 @@ func Login(csrfToken string, csrfKey string) templ.Component {
 		if templ_7745c5c3_Err != nil {
 			return templ_7745c5c3_Err
 		}
-		templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 3, "\"> <input type=\"text\" name=\"username\" placeholder=\"Username\" required> <input type=\"password\" name=\"password\" placeholder=\"Password\" required> <label><input type=\"checkbox\" name=\"remember_me\" value=\"true\"> Remember Me</label> <button type=\"submit\">Login</button></form><a href=\"/forgot-password\">Forgotten your password?</a><p>Don't have an account? <a href=\"/register\">Register</a>.</p></main>")
+		templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 3, "\"> <input type=\"text\" name=\"username\" placeholder=\"Username\" required> <input type=\"password\" name=\"password\" placeholder=\"Password\" required> <label><input type=\"checkbox\" name=\"remember_me\" value=\"true\"> Remember Me</label> <button type=\"submit\">Login</button></form><a href=\"/forgot-password\">Forgotten your password?</a><p>Don't have an account? <a href=\"/register\">Register</a>.</p></div>")
 		if templ_7745c5c3_Err != nil {
 			return templ_7745c5c3_Err
 		}

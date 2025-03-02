@@ -1,11 +1,13 @@
-version: "3.8"
+version: '3.8'
 
 services:
   go-app:
     build:
       context: .
       dockerfile: dev.dockerfile
-    command: make dev
+    ports:
+      - '8080:8080'
+      - '7331:7331'
     volumes:
       - .:/usr/app
     extends:
