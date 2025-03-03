@@ -1,0 +1,57 @@
+package components
+
+import "github.com/axzilla/templui/components"
+import "github.com/eddietindame/gorssagg/internal/config"
+
+type LoginFormErrors struct {
+	Generic     bool
+	Credentials bool
+}
+
+templ LoginForm(csrfToken string, errors LoginFormErrors) {
+	<form hx-post="/login" hx-swap="outer-html" class="flex flex-col gap-2">
+		<input type="hidden" name={ config.CsrfFormKey } value={ csrfToken }/>
+		@components.Input(components.InputProps{
+			Name:        "username",
+			Placeholder: "Username",
+			Required:    true,
+			HasError:    errors.Credentials,
+		})
+		@components.Input(components.InputProps{
+			Type:        "password",
+			Name:        "password",
+			Placeholder: "Password",
+			Required:    true,
+			HasError:    errors.Credentials,
+		})
+		if errors.Generic {
+			@components.FormMessage(components.FormMessageProps{
+				Message: "Something went wrong.",
+				Type:    "error",
+				Class:   "opacity-fade-in",
+			})
+		}
+		if errors.Credentials {
+			@components.FormMessage(components.FormMessageProps{
+				Message: "Invalid username or password.",
+				Type:    "error",
+				Class:   "opacity-fade-in",
+			})
+		}
+		@components.Button(components.ButtonProps{
+			Type: "submit",
+			Text: "Login",
+		})
+		<div class="flex items-center gap-2">
+			@components.Checkbox(components.CheckboxProps{
+				ID:      "remember-me",
+				Name:    "remember_me",
+				Checked: true,
+			})
+			@components.Label(components.LabelProps{
+				For:  "remember-me",
+				Text: "Remember me",
+			})
+		</div>
+	</form>
+}

@@ -9,24 +9,20 @@ import (
 	"github.com/gorilla/csrf"
 )
 
-var csrfFormKey = "gorilla.csrf.Token"
+func handlerWithLayout(contents templ.Component, title string) *templ.ComponentHandler {
+	return templ.Handler(templates.Layout(contents, title))
+}
 
 func LoginPageHandler(w http.ResponseWriter, r *http.Request) {
-	templ.Handler(
-		templates.Layout(templates.Login(csrf.Token(r), csrfFormKey), "Login"),
-	).ServeHTTP(w, r)
+	handlerWithLayout(templates.Login(csrf.Token(r)), "Login").ServeHTTP(w, r)
 }
 
 func RegisterPageHandler(w http.ResponseWriter, r *http.Request) {
-	templ.Handler(
-		templates.Layout(templates.Register(csrf.Token(r), csrfFormKey), "Register"),
-	).ServeHTTP(w, r)
+	handlerWithLayout(templates.Register(csrf.Token(r)), "Register").ServeHTTP(w, r)
 }
 
 func ForgotPageHandler(w http.ResponseWriter, r *http.Request) {
-	templ.Handler(
-		templates.Layout(templates.Forgot(csrf.Token(r), csrfFormKey), "Forgot password"),
-	).ServeHTTP(w, r)
+	handlerWithLayout(templates.Forgot(csrf.Token(r)), "Forgot password").ServeHTTP(w, r)
 }
 
 func ResetPageHandler(w http.ResponseWriter, r *http.Request) {
@@ -42,13 +38,9 @@ func ResetPageHandler(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	templ.Handler(
-		templates.Layout(templates.Reset(csrf.Token(r), csrfFormKey, token), "Reset password"),
-	).ServeHTTP(w, r)
+	handlerWithLayout(templates.Reset(csrf.Token(r), token), "Reset password").ServeHTTP(w, r)
 }
 
 func DashboardPageHandler(w http.ResponseWriter, r *http.Request) {
-	templ.Handler(
-		templates.Layout(templates.Dashboard(), "Dashboard"),
-	).ServeHTTP(w, r)
+	handlerWithLayout(templates.Dashboard(), "Dashboard").ServeHTTP(w, r)
 }

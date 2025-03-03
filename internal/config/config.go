@@ -9,6 +9,8 @@ import (
 	"github.com/joho/godotenv"
 )
 
+var CsrfFormKey = "gorilla.csrf.Token"
+
 // Set to production at build time
 var Environment = "development"
 var PORT, HOST, DB_URL, POSTGRES_HOST, POSTGRES_PORT, POSTGRES_USER, POSTGRES_PASSWORD, POSTGRES_DB, REDIS_HOST, REDIS_USERNAME, REDIS_PASSWORD, SESSION_KEY, CSRF_KEY, EMAIL_ADDRESS, SMTP_USERNAME, SMTP_PASSWORD, SMTP_HOST, SMTP_PORT string

@@ -7,13 +7,20 @@ import (
 	"strings"
 	"time"
 
+	"github.com/a-h/templ"
 	"github.com/eddietindame/gorssagg/internal/config"
 	"github.com/eddietindame/gorssagg/internal/database"
 	"github.com/eddietindame/gorssagg/internal/mail"
 	"github.com/eddietindame/gorssagg/internal/store"
+	"github.com/eddietindame/gorssagg/internal/templates/components"
 	"github.com/google/uuid"
+	"github.com/gorilla/csrf"
 	"golang.org/x/crypto/bcrypt"
 )
+
+func handlerWithLoginForm(csrfToken string, errors components.LoginFormErrors) *templ.ComponentHandler {
+	return templ.Handler(components.LoginForm(csrfToken, errors))
+}
 
 func (apiCfg *APIConfig) LoginHandler(w http.ResponseWriter, r *http.Request) {
 	username := r.FormValue("username")
@@ -21,20 +28,38 @@ func (apiCfg *APIConfig) LoginHandler(w http.ResponseWriter, r *http.Request) {
 
 	hashedPassword, err := apiCfg.DB.GetUserPassword(r.Context(), username)
 	if err != nil {
-		http.Error(w, "Invalid credentials", http.StatusUnauthorized)
+		if r.Header.Get("Hx-Request") != "" {
+			handlerWithLoginForm(csrf.Token(r), components.LoginFormErrors{
+				Credentials: true,
+			}).ServeHTTP(w, r)
+		} else {
+			http.Error(w, "Invalid credentials", http.StatusUnauthorized)
+		}
 		return
 	}
 
 	err = bcrypt.CompareHashAndPassword([]byte(hashedPassword), []byte(password))
 	if err != nil {
-		http.Error(w, "Invalid credentials", http.StatusUnauthorized)
+		if r.Header.Get("Hx-Request") != "" {
+			handlerWithLoginForm(csrf.Token(r), components.LoginFormErrors{
+				Credentials: true,
+			}).ServeHTTP(w, r)
+		} else {
+			http.Error(w, "Invalid credentials", http.StatusUnauthorized)
+		}
 		return
 	}
 
 	session, err := store.Store.Get(r, "session")
 	if err != nil {
 		log.Println(err)
-		http.Error(w, "Session error", http.StatusInternalServerError)
+		if r.Header.Get("Hx-Request") != "" {
+			handlerWithLoginForm(csrf.Token(r), components.LoginFormErrors{
+				Generic: true,
+			}).ServeHTTP(w, r)
+		} else {
+			http.Error(w, "Session error", http.StatusInternalServerError)
+		}
 		return
 	}
 
@@ -50,11 +75,25 @@ func (apiCfg *APIConfig) LoginHandler(w http.ResponseWriter, r *http.Request) {
 	err = session.Save(r, w)
 	if err != nil {
 		log.Println(err)
-		http.Error(w, "Session error", http.StatusInternalServerError)
+		log.Println(err)
+		if r.Header.Get("Hx-Request") != "" {
+			handlerWithLoginForm(csrf.Token(r), components.LoginFormErrors{
+				Generic: true,
+			}).ServeHTTP(w, r)
+		} else {
+			http.Error(w, "Session error", http.StatusInternalServerError)
+		}
 		return
 	}
 
-	http.Redirect(w, r, "/dashboard", http.StatusSeeOther)
+	redirectUrl := "/dashboard"
+
+	if r.Header.Get("Hx-Request") != "" {
+		w.Header().Set("HX-Redirect", redirectUrl)
+		http.Redirect(w, r, redirectUrl, http.StatusOK)
+	} else {
+		http.Redirect(w, r, redirectUrl, http.StatusSeeOther)
+	}
 }
 
 func LogoutHandler(w http.ResponseWriter, r *http.Request) {
