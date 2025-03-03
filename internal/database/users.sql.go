@@ -17,7 +17,7 @@ INSERT INTO users (id, created_at, updated_at, username, email, password, api_ke
 VALUES ($1, $2, $3, $4, $5, $6,
   encode(sha256(random()::text::bytea), 'hex')
 )
-RETURNING id, created_at, updated_at, api_key, password, username, email
+RETURNING id, created_at, updated_at, email, username, password, api_key
 `
 
 type CreateUserParams struct {
@@ -43,16 +43,16 @@ func (q *Queries) CreateUser(ctx context.Context, arg CreateUserParams) (User, e
 		&i.ID,
 		&i.CreatedAt,
 		&i.UpdatedAt,
-		&i.ApiKey,
-		&i.Password,
-		&i.Username,
 		&i.Email,
+		&i.Username,
+		&i.Password,
+		&i.ApiKey,
 	)
 	return i, err
 }
 
 const getUserByApiKey = `-- name: GetUserByApiKey :one
-SELECT id, created_at, updated_at, api_key, password, username, email FROM users WHERE api_key = $1
+SELECT id, created_at, updated_at, email, username, password, api_key FROM users WHERE api_key = $1
 `
 
 func (q *Queries) GetUserByApiKey(ctx context.Context, apiKey string) (User, error) {
@@ -62,16 +62,16 @@ func (q *Queries) GetUserByApiKey(ctx context.Context, apiKey string) (User, err
 		&i.ID,
 		&i.CreatedAt,
 		&i.UpdatedAt,
-		&i.ApiKey,
-		&i.Password,
-		&i.Username,
 		&i.Email,
+		&i.Username,
+		&i.Password,
+		&i.ApiKey,
 	)
 	return i, err
 }
 
 const getUserByEmail = `-- name: GetUserByEmail :one
-SELECT id, created_at, updated_at, api_key, password, username, email FROM users WHERE email = $1
+SELECT id, created_at, updated_at, email, username, password, api_key FROM users WHERE email = $1
 `
 
 func (q *Queries) GetUserByEmail(ctx context.Context, email string) (User, error) {
@@ -81,23 +81,31 @@ func (q *Queries) GetUserByEmail(ctx context.Context, email string) (User, error
 		&i.ID,
 		&i.CreatedAt,
 		&i.UpdatedAt,
-		&i.ApiKey,
-		&i.Password,
-		&i.Username,
 		&i.Email,
+		&i.Username,
+		&i.Password,
+		&i.ApiKey,
 	)
 	return i, err
 }
 
-const getUserPassword = `-- name: GetUserPassword :one
-SELECT password FROM users WHERE username = $1
+const getUserByUsername = `-- name: GetUserByUsername :one
+SELECT id, created_at, updated_at, email, username, password, api_key FROM users WHERE username = $1
 `
 
-func (q *Queries) GetUserPassword(ctx context.Context, username string) (string, error) {
-	row := q.db.QueryRowContext(ctx, getUserPassword, username)
-	var password string
-	err := row.Scan(&password)
-	return password, err
+func (q *Queries) GetUserByUsername(ctx context.Context, username string) (User, error) {
+	row := q.db.QueryRowContext(ctx, getUserByUsername, username)
+	var i User
+	err := row.Scan(
+		&i.ID,
+		&i.CreatedAt,
+		&i.UpdatedAt,
+		&i.Email,
+		&i.Username,
+		&i.Password,
+		&i.ApiKey,
+	)
+	return i, err
 }
 
 const updateUserPassword = `-- name: UpdateUserPassword :exec

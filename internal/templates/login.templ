@@ -3,14 +3,20 @@ package templates
 import "github.com/eddietindame/gorssagg/internal/templates/components"
 
 type LoginProps struct {
-	CsrfToken string
-	Reset     bool
+	CsrfToken  string
+	Registered bool
+	Reset      bool
 }
 
 templ Login(props LoginProps) {
 	@components.SplashFormLayout(components.SplashFormLayoutProps{
 		Heading: "Login",
 	}) {
+		if props.Registered {
+			<div class="rounded bg-green-100 p-4">
+				&#10024; Account registered! You can now log in.
+			</div>
+		}
 		if props.Reset {
 			<div class="rounded bg-green-100 p-4">
 				&#10024; Password reset successful! You can now log in.

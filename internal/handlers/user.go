@@ -7,6 +7,7 @@ import (
 	"time"
 
 	"github.com/eddietindame/gorssagg/internal/database"
+	"github.com/eddietindame/gorssagg/internal/models"
 	"github.com/google/uuid"
 )
 
@@ -36,11 +37,11 @@ func (apiCfg *APIConfig) CreateUser(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	respondWithJSON(w, 201, databaseUserToUser(user))
+	respondWithJSON(w, 201, models.DatabaseUserToUser(user))
 }
 
 func (apiCfg *APIConfig) GetUser(w http.ResponseWriter, r *http.Request, user database.User) {
-	respondWithJSON(w, 201, databaseUserToUser(user))
+	respondWithJSON(w, 201, models.DatabaseUserToUser(user))
 }
 
 func (apiCfg *APIConfig) GetPostsForUser(w http.ResponseWriter, r *http.Request, user database.User) {
@@ -53,5 +54,5 @@ func (apiCfg *APIConfig) GetPostsForUser(w http.ResponseWriter, r *http.Request,
 		return
 	}
 
-	respondWithJSON(w, 200, databasePostsToPosts(posts))
+	respondWithJSON(w, 200, models.DatabasePostsToPosts(posts))
 }

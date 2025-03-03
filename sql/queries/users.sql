@@ -11,8 +11,8 @@ SELECT * FROM users WHERE api_key = $1;
 -- name: GetUserByEmail :one
 SELECT * FROM users WHERE email = $1;
 
--- name: GetUserPassword :one
-SELECT password FROM users WHERE username = $1;
+-- name: GetUserByUsername :one
+SELECT * FROM users WHERE username = $1;
 
 -- name: UpdateUserPassword :exec
 UPDATE users SET password = $1 where email = $2;

@@ -16,7 +16,8 @@ func setupPagesRouter(apiCfg handlers.APIConfig) *chi.Mux {
 	pagesRouter.Post("/forgot-password", apiCfg.ForgotPasswordHandler)
 	pagesRouter.Get("/reset-password", handlers.ResetPageHandler)
 	pagesRouter.Post("/reset-password", apiCfg.ResetPasswordHandler)
-	pagesRouter.With(handlers.MiddlewareSessionAuth).Get("/dashboard", handlers.DashboardPageHandler)
+	pagesRouter.With(handlers.MiddlewareSessionAuth).Get("/posts", apiCfg.PostsPageHandler)
+	pagesRouter.With(handlers.MiddlewareSessionAuth).Get("/feeds", apiCfg.FeedsPageHandler)
 
 	return pagesRouter
 }

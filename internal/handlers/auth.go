@@ -43,7 +43,7 @@ func (apiCfg *APIConfig) LoginHandler(w http.ResponseWriter, r *http.Request) {
 		RememberMe: rememberMe,
 	}
 
-	hashedPassword, err := apiCfg.DB.GetUserPassword(r.Context(), username)
+	user, err := apiCfg.DB.GetUserByUsername(r.Context(), username)
 	if err != nil {
 		if r.Header.Get("Hx-Request") != "" {
 			responseWithLoginForm(csrf.Token(r), values, errors.LoginCredentials).ServeHTTP(w, r)
@@ -53,7 +53,7 @@ func (apiCfg *APIConfig) LoginHandler(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	err = bcrypt.CompareHashAndPassword([]byte(hashedPassword), []byte(password))
+	err = bcrypt.CompareHashAndPassword([]byte(user.Password), []byte(password))
 	if err != nil {
 		if r.Header.Get("Hx-Request") != "" {
 			responseWithLoginForm(csrf.Token(r), values, errors.LoginCredentials).ServeHTTP(w, r)
@@ -75,6 +75,8 @@ func (apiCfg *APIConfig) LoginHandler(w http.ResponseWriter, r *http.Request) {
 	}
 
 	session.Values["authenticated"] = true
+	session.Values["user_id"] = user.ID.String()
+	session.Values["email"] = user.Email
 	session.Values["username"] = username
 
 	if rememberMe {
@@ -94,7 +96,7 @@ func (apiCfg *APIConfig) LoginHandler(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	redirect(w, r, "/dashboard")
+	redirect(w, r, "/posts")
 }
 
 func LogoutHandler(w http.ResponseWriter, r *http.Request) {
@@ -189,7 +191,7 @@ func (apiCfg *APIConfig) RegisterHandler(w http.ResponseWriter, r *http.Request)
 		return
 	}
 
-	redirect(w, r, "/login")
+	redirect(w, r, "/login?registered")
 }
 
 func responseWithForgotForm(csrfToken string, values components.ForgotFormValues, err errors.HandlerError) *templ.ComponentHandler {

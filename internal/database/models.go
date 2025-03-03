@@ -44,8 +44,8 @@ type User struct {
 	ID        uuid.UUID
 	CreatedAt time.Time
 	UpdatedAt time.Time
-	ApiKey    string
-	Password  string
-	Username  string
 	Email     string
+	Username  string
+	Password  string
+	ApiKey    string
 }

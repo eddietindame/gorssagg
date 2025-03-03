@@ -1,0 +1,29 @@
+package components
+
+import "encoding/json"
+import "fmt"
+import "github.com/eddietindame/gorssagg/internal/models"
+
+type PostsProps struct {
+	Posts []models.Post
+}
+
+func postsToJSON(posts []models.Post) string {
+	json, err := json.Marshal(posts)
+	if err != nil {
+		fmt.Println(err)
+		return ""
+	}
+	return string(json)
+}
+
+templ Posts(props PostsProps) {
+	if len(props.Posts) == 0 {
+		<div class="">No posts.</div>
+	} else {
+		// TODO: posts
+		<pre class="">
+			{ postsToJSON(props.Posts) }
+		</pre>
+	}
+}

@@ -1,4 +1,4 @@
-package handlers
+package models
 
 import (
 	"time"
@@ -15,7 +15,7 @@ type User struct {
 	ApiKey    string    `json:"api_key"`
 }
 
-func databaseUserToUser(dbUser database.User) User {
+func DatabaseUserToUser(dbUser database.User) User {
 	return User{
 		ID:        dbUser.ID,
 		CreatedAt: dbUser.CreatedAt,
@@ -34,7 +34,7 @@ type Feed struct {
 	UserID    uuid.UUID `json:"user_id"`
 }
 
-func databaseFeedToFeed(dbFeed database.Feed) Feed {
+func DatabaseFeedToFeed(dbFeed database.Feed) Feed {
 	return Feed{
 		ID:        dbFeed.ID,
 		CreatedAt: dbFeed.CreatedAt,
@@ -45,10 +45,10 @@ func databaseFeedToFeed(dbFeed database.Feed) Feed {
 	}
 }
 
-func databaseFeedsToFeeds(dbFeeds []database.Feed) []Feed {
+func DatabaseFeedsToFeeds(dbFeeds []database.Feed) []Feed {
 	feeds := []Feed{}
 	for _, dbFeed := range dbFeeds {
-		feeds = append(feeds, databaseFeedToFeed(dbFeed))
+		feeds = append(feeds, DatabaseFeedToFeed(dbFeed))
 	}
 	return feeds
 }
@@ -61,7 +61,7 @@ type FeedFollow struct {
 	FeedID    uuid.UUID `json:"feed_id"`
 }
 
-func databaseFeedFollowToFeedFollow(dbFeedFollow database.FeedFollow) FeedFollow {
+func DatabaseFeedFollowToFeedFollow(dbFeedFollow database.FeedFollow) FeedFollow {
 	return FeedFollow{
 		ID:        dbFeedFollow.ID,
 		CreatedAt: dbFeedFollow.CreatedAt,
@@ -71,10 +71,10 @@ func databaseFeedFollowToFeedFollow(dbFeedFollow database.FeedFollow) FeedFollow
 	}
 }
 
-func databaseFeedFollowsToFeedFollows(dbFeedFollows []database.FeedFollow) []FeedFollow {
+func DatabaseFeedFollowsToFeedFollows(dbFeedFollows []database.FeedFollow) []FeedFollow {
 	feedFollows := []FeedFollow{}
 	for _, dbFeed := range dbFeedFollows {
-		feedFollows = append(feedFollows, databaseFeedFollowToFeedFollow(dbFeed))
+		feedFollows = append(feedFollows, DatabaseFeedFollowToFeedFollow(dbFeed))
 	}
 	return feedFollows
 }
@@ -90,7 +90,7 @@ type Post struct {
 	FeedID      uuid.UUID `json:"feed_id"`
 }
 
-func databasePostToPost(dbPost database.Post) Post {
+func DatabasePostToPost(dbPost database.Post) Post {
 	var description *string
 	if dbPost.Description.Valid {
 		description = &dbPost.Description.String
@@ -108,10 +108,10 @@ func databasePostToPost(dbPost database.Post) Post {
 	}
 }
 
-func databasePostsToPosts(dbPosts []database.Post) []Post {
+func DatabasePostsToPosts(dbPosts []database.Post) []Post {
 	posts := []Post{}
 	for _, dbPost := range dbPosts {
-		posts = append(posts, databasePostToPost(dbPost))
+		posts = append(posts, DatabasePostToPost(dbPost))
 	}
 	return posts
 }

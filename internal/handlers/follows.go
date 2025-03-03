@@ -7,6 +7,7 @@ import (
 	"time"
 
 	"github.com/eddietindame/gorssagg/internal/database"
+	"github.com/eddietindame/gorssagg/internal/models"
 	"github.com/go-chi/chi/v5"
 	"github.com/google/uuid"
 )
@@ -38,7 +39,7 @@ func (apiCfg *APIConfig) CreateFeedFollow(w http.ResponseWriter, r *http.Request
 		return
 	}
 
-	respondWithJSON(w, 201, databaseFeedFollowToFeedFollow(feedFollow))
+	respondWithJSON(w, 201, models.DatabaseFeedFollowToFeedFollow(feedFollow))
 }
 
 func (apiCfg *APIConfig) GetFeedFollows(w http.ResponseWriter, r *http.Request, user database.User) {
@@ -47,7 +48,7 @@ func (apiCfg *APIConfig) GetFeedFollows(w http.ResponseWriter, r *http.Request, 
 		respondWithError(w, 400, fmt.Sprintf("Error getting feed follows: %v", err))
 		return
 	}
-	respondWithJSON(w, 200, databaseFeedFollowsToFeedFollows(feedFollows))
+	respondWithJSON(w, 200, models.DatabaseFeedFollowsToFeedFollows(feedFollows))
 }
 
 func (apiCfg *APIConfig) DeleteFeedFollow(w http.ResponseWriter, r *http.Request, user database.User) {

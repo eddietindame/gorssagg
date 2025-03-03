@@ -1,0 +1,63 @@
+package templates
+
+import "fmt"
+
+import "golang.org/x/text/cases"
+import "golang.org/x/text/language"
+import "github.com/axzilla/templui/components"
+import "github.com/axzilla/templui/icons"
+import "strings"
+
+type DashboardProps struct {
+	Contents    templ.Component
+	CurrentPage string
+	Username    string
+}
+
+var pages = []string{"posts", "feeds"}
+
+func classes(page string, currentPage string) string {
+	classes := []string{"hover:underline"}
+	if fmt.Sprintf("/%s", page) == currentPage {
+		classes = append(classes, "underline")
+	}
+	return strings.Join(classes, " ")
+}
+
+templ DashboardLayout(props DashboardProps) {
+	<header class="flex justify-between bg-primary text-primary-foreground p-4">
+		<span class="flex items-center">Welcome, { props.Username }.</span>
+		@components.Button(components.ButtonProps{
+			Href:     "/logout",
+			Text:     "Logout",
+			Variant:  components.ButtonVariantLink,
+			IconLeft: icons.LogOut(icons.IconProps{Size: "16"}),
+			Class:    "text-primary-foreground hover:underline",
+		})
+	</header>
+	<div class="flex-1 flex">
+		<aside class="h-full p-4 bg-muted">
+			<nav>
+				<ul class="flex flex-col">
+					for _, page := range pages {
+						<li>
+							@components.Button(components.ButtonProps{
+								Href:    fmt.Sprintf("/%s", page),
+								Text:    cases.Title(language.Und).String(page),
+								Variant: components.ButtonVariantLink,
+								Class:   classes(page, props.CurrentPage),
+							})
+						</li>
+					}
+				</ul>
+			</nav>
+		</aside>
+		<div class="flex-1">
+			<div class="p-4">
+				if props.Contents != nil {
+					@props.Contents
+				}
+			</div>
+		</div>
+	</div>
+}

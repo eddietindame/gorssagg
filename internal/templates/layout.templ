@@ -22,3 +22,12 @@ templ Layout(contents templ.Component, title string) {
 		</main>
 	</body>
 }
+
+templ LayoutFull(contents templ.Component, title string) {
+	@header(title)
+	<body class="flex flex-col h-full">
+		<main class="flex-1 flex flex-col">
+			@contents
+		</main>
+	</body>
+}

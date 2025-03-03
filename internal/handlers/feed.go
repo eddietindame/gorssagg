@@ -7,6 +7,7 @@ import (
 	"time"
 
 	"github.com/eddietindame/gorssagg/internal/database"
+	"github.com/eddietindame/gorssagg/internal/models"
 	"github.com/google/uuid"
 )
 
@@ -39,7 +40,7 @@ func (apiCfg *APIConfig) CreateFeed(w http.ResponseWriter, r *http.Request, user
 		return
 	}
 
-	respondWithJSON(w, 201, databaseFeedToFeed(feed))
+	respondWithJSON(w, 201, models.DatabaseFeedToFeed(feed))
 }
 
 func (apiCfg *APIConfig) GetFeeds(w http.ResponseWriter, r *http.Request) {
@@ -49,5 +50,5 @@ func (apiCfg *APIConfig) GetFeeds(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	respondWithJSON(w, 200, databaseFeedsToFeeds(feeds))
+	respondWithJSON(w, 200, models.DatabaseFeedsToFeeds(feeds))
 }
