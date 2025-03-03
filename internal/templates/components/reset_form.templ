@@ -1,0 +1,47 @@
+package components
+
+import "github.com/axzilla/templui/components"
+import "github.com/eddietindame/gorssagg/internal/config"
+import "github.com/eddietindame/gorssagg/internal/handlers/errors"
+
+type ResetFormValues struct {
+	Password        string
+	PasswordConfirm string
+}
+
+type ResetFormProps struct {
+	CsrfToken  string
+	ResetToken string
+	Err        errors.HandlerError
+	Values     ResetFormValues
+}
+
+templ ResetForm(props ResetFormProps) {
+	@Form(FormProps{
+		PostTo: "/reset-password",
+	}) {
+		<input type="hidden" name={ config.CsrfFormKey } value={ props.CsrfToken }/>
+		<input type="hidden" name="token" value={ props.ResetToken }/>
+		@components.Input(components.InputProps{
+			Name:        "password",
+			Placeholder: "Password",
+			Required:    true,
+			Value:       props.Values.Password,
+			HasError:    props.Err == errors.ResetPassword,
+		})
+		@components.Input(components.InputProps{
+			Name:        "password_confirm",
+			Placeholder: "Confirm new password",
+			Required:    true,
+			Value:       props.Values.PasswordConfirm,
+			HasError:    props.Err == errors.ResetPassword,
+		})
+		@FormError(FormErrorProps{
+			Error: props.Err,
+		})
+		@components.Button(components.ButtonProps{
+			Type: "submit",
+			Text: "Reset",
+		})
+	}
+}

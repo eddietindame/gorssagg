@@ -1,0 +1,11 @@
+package components
+
+type FormProps struct {
+	PostTo string
+}
+
+templ Form(props FormProps) {
+	<form hx-post={ props.PostTo } hx-swap="outerHTML" hx-disabled-elt="find button" class="flex flex-col gap-2">
+		{ children... }
+	</form>
+}

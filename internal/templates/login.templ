@@ -2,10 +2,21 @@ package templates
 
 import "github.com/eddietindame/gorssagg/internal/templates/components"
 
-templ Login(csrfToken string) {
-	<div class="max-w-md mx-auto flex flex-col gap-2 justify-center h-full pb-[40%] opacity-fade-in">
-		<h1 class="text-3xl font-serif">Login</h1>
-		@components.LoginForm(csrfToken, components.LoginFormErrors{})
+type LoginProps struct {
+	CsrfToken string
+	Reset     bool
+}
+
+templ Login(props LoginProps) {
+	@components.SplashFormLayout(components.SplashFormLayoutProps{
+		Heading: "Login",
+	}) {
+		if props.Reset {
+			<div class="rounded bg-green-100 p-4">
+				&#10024; Password reset successful! You can now log in.
+			</div>
+		}
+		@components.LoginForm(components.LoginFormProps{CsrfToken: props.CsrfToken, Values: components.LoginFormValues{RememberMe: true}})
 		@components.Link(components.LinkProps{
 			Href: "/forgot-password",
 			Text: "Forgotten your password?",
@@ -18,5 +29,5 @@ templ Login(csrfToken string) {
 			})
 			.
 		</p>
-	</div>
+	}
 }

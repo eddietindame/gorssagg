@@ -1,0 +1,44 @@
+package components
+
+import "github.com/axzilla/templui/components"
+import "github.com/eddietindame/gorssagg/internal/config"
+import "github.com/eddietindame/gorssagg/internal/handlers/errors"
+
+type ForgotFormValues struct {
+	Email string
+}
+
+type ForgotFormProps struct {
+	CsrfToken string
+	Err       errors.HandlerError
+	Values    ForgotFormValues
+	Success   bool
+}
+
+templ ForgotForm(props ForgotFormProps) {
+	@Form(FormProps{
+		PostTo: "/forgot-password",
+	}) {
+		if props.Success {
+			<div class="rounded bg-green-100 p-4">
+				&#10024; Password reset link sent! Check your email.
+			</div>
+		} else {
+			<input type="hidden" name={ config.CsrfFormKey } value={ props.CsrfToken }/>
+			@components.Input(components.InputProps{
+				Name:        "email",
+				Placeholder: "Email",
+				Required:    true,
+				Value:       props.Values.Email,
+				HasError:    props.Err == errors.ForgotNotFound,
+			})
+			@FormError(FormErrorProps{
+				Error: props.Err,
+			})
+			@components.Button(components.ButtonProps{
+				Type: "submit",
+				Text: "Submit",
+			})
+		}
+	}
+}

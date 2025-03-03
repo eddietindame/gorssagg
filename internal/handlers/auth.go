@@ -4,12 +4,14 @@ import (
 	"fmt"
 	"log"
 	"net/http"
+	"strconv"
 	"strings"
 	"time"
 
 	"github.com/a-h/templ"
 	"github.com/eddietindame/gorssagg/internal/config"
 	"github.com/eddietindame/gorssagg/internal/database"
+	"github.com/eddietindame/gorssagg/internal/handlers/errors"
 	"github.com/eddietindame/gorssagg/internal/mail"
 	"github.com/eddietindame/gorssagg/internal/store"
 	"github.com/eddietindame/gorssagg/internal/templates/components"
@@ -18,22 +20,35 @@ import (
 	"golang.org/x/crypto/bcrypt"
 )
 
-func handlerWithLoginForm(csrfToken string, errors components.LoginFormErrors) *templ.ComponentHandler {
-	return templ.Handler(components.LoginForm(csrfToken, errors))
+func responseWithLoginForm(csrfToken string, values components.LoginFormValues, err errors.HandlerError) *templ.ComponentHandler {
+	return templ.Handler(components.LoginForm(components.LoginFormProps{
+		CsrfToken: csrfToken,
+		Err:       err,
+		Values:    values,
+	}))
 }
 
 func (apiCfg *APIConfig) LoginHandler(w http.ResponseWriter, r *http.Request) {
 	username := r.FormValue("username")
 	password := r.FormValue("password")
+	rememberMeStr := r.FormValue("remember_me")
+	rememberMe, err := strconv.ParseBool(rememberMeStr)
+	if err != nil {
+		rememberMe = false
+	}
+
+	values := components.LoginFormValues{
+		Username:   username,
+		Password:   password,
+		RememberMe: rememberMe,
+	}
 
 	hashedPassword, err := apiCfg.DB.GetUserPassword(r.Context(), username)
 	if err != nil {
 		if r.Header.Get("Hx-Request") != "" {
-			handlerWithLoginForm(csrf.Token(r), components.LoginFormErrors{
-				Credentials: true,
-			}).ServeHTTP(w, r)
+			responseWithLoginForm(csrf.Token(r), values, errors.LoginCredentials).ServeHTTP(w, r)
 		} else {
-			http.Error(w, "Invalid credentials", http.StatusUnauthorized)
+			http.Error(w, errors.LoginCredentials.ToString(), http.StatusUnauthorized)
 		}
 		return
 	}
@@ -41,11 +56,9 @@ func (apiCfg *APIConfig) LoginHandler(w http.ResponseWriter, r *http.Request) {
 	err = bcrypt.CompareHashAndPassword([]byte(hashedPassword), []byte(password))
 	if err != nil {
 		if r.Header.Get("Hx-Request") != "" {
-			handlerWithLoginForm(csrf.Token(r), components.LoginFormErrors{
-				Credentials: true,
-			}).ServeHTTP(w, r)
+			responseWithLoginForm(csrf.Token(r), values, errors.LoginCredentials).ServeHTTP(w, r)
 		} else {
-			http.Error(w, "Invalid credentials", http.StatusUnauthorized)
+			http.Error(w, errors.LoginCredentials.ToString(), http.StatusUnauthorized)
 		}
 		return
 	}
@@ -54,11 +67,9 @@ func (apiCfg *APIConfig) LoginHandler(w http.ResponseWriter, r *http.Request) {
 	if err != nil {
 		log.Println(err)
 		if r.Header.Get("Hx-Request") != "" {
-			handlerWithLoginForm(csrf.Token(r), components.LoginFormErrors{
-				Generic: true,
-			}).ServeHTTP(w, r)
+			responseWithLoginForm(csrf.Token(r), values, errors.SessionError).ServeHTTP(w, r)
 		} else {
-			http.Error(w, "Session error", http.StatusInternalServerError)
+			http.Error(w, errors.SessionError.ToString(), http.StatusInternalServerError)
 		}
 		return
 	}
@@ -66,7 +77,7 @@ func (apiCfg *APIConfig) LoginHandler(w http.ResponseWriter, r *http.Request) {
 	session.Values["authenticated"] = true
 	session.Values["username"] = username
 
-	if r.FormValue("remember_me") == "true" {
+	if rememberMe {
 		session.Options.MaxAge = 86400 * 30 // 30 days
 	} else {
 		session.Options.MaxAge = 3600 // 1 hour
@@ -75,25 +86,15 @@ func (apiCfg *APIConfig) LoginHandler(w http.ResponseWriter, r *http.Request) {
 	err = session.Save(r, w)
 	if err != nil {
 		log.Println(err)
-		log.Println(err)
 		if r.Header.Get("Hx-Request") != "" {
-			handlerWithLoginForm(csrf.Token(r), components.LoginFormErrors{
-				Generic: true,
-			}).ServeHTTP(w, r)
+			responseWithLoginForm(csrf.Token(r), values, errors.SessionError).ServeHTTP(w, r)
 		} else {
-			http.Error(w, "Session error", http.StatusInternalServerError)
+			http.Error(w, errors.SessionError.ToString(), http.StatusInternalServerError)
 		}
 		return
 	}
 
-	redirectUrl := "/dashboard"
-
-	if r.Header.Get("Hx-Request") != "" {
-		w.Header().Set("HX-Redirect", redirectUrl)
-		http.Redirect(w, r, redirectUrl, http.StatusOK)
-	} else {
-		http.Redirect(w, r, redirectUrl, http.StatusSeeOther)
-	}
+	redirect(w, r, "/dashboard")
 }
 
 func LogoutHandler(w http.ResponseWriter, r *http.Request) {
@@ -113,20 +114,44 @@ func LogoutHandler(w http.ResponseWriter, r *http.Request) {
 	http.Redirect(w, r, "/login", http.StatusSeeOther)
 }
 
+func responseWithRegisterForm(csrfToken string, values components.RegisterFormValues, err errors.HandlerError) *templ.ComponentHandler {
+	return templ.Handler(components.RegisterForm(components.RegisterFormProps{
+		CsrfToken: csrfToken,
+		Err:       err,
+		Values:    values,
+	}))
+}
+
 func (apiCfg *APIConfig) RegisterHandler(w http.ResponseWriter, r *http.Request) {
 	username := r.FormValue("username")
 	email := r.FormValue("email")
 	password := r.FormValue("password")
 	passwordConfirm := r.FormValue("password_confirm")
 
+	values := components.RegisterFormValues{
+		Username:        username,
+		Email:           email,
+		Password:        password,
+		ConfirmPassword: passwordConfirm,
+	}
+
 	if password != passwordConfirm {
-		http.Error(w, "Password does not match confirmation", http.StatusBadRequest)
+		if r.Header.Get("Hx-Request") != "" {
+			responseWithRegisterForm(csrf.Token(r), values, errors.RegisterPassword).ServeHTTP(w, r)
+		} else {
+			http.Error(w, errors.RegisterPassword.ToString(), http.StatusBadRequest)
+		}
 		return
 	}
 
 	hashedPassword, err := bcrypt.GenerateFromPassword([]byte(password), bcrypt.DefaultCost)
 	if err != nil {
-		http.Error(w, "Server error", http.StatusInternalServerError)
+		log.Println(err)
+		if r.Header.Get("Hx-Request") != "" {
+			responseWithRegisterForm(csrf.Token(r), values, errors.ServerError).ServeHTTP(w, r)
+		} else {
+			http.Error(w, errors.ServerError.ToString(), http.StatusInternalServerError)
+		}
 		return
 	}
 
@@ -143,23 +168,53 @@ func (apiCfg *APIConfig) RegisterHandler(w http.ResponseWriter, r *http.Request)
 	if err != nil {
 		log.Println("Error creating user:", err)
 		if strings.Contains(err.Error(), "username_check") {
-			http.Error(w, "Invalid username", http.StatusBadRequest)
+			if r.Header.Get("Hx-Request") != "" {
+				responseWithRegisterForm(csrf.Token(r), values, errors.RegisterUsername).ServeHTTP(w, r)
+			} else {
+				http.Error(w, errors.RegisterUsername.ToString(), http.StatusBadRequest)
+			}
+		} else if strings.Contains(err.Error(), "email_address_check") {
+			if r.Header.Get("Hx-Request") != "" {
+				responseWithRegisterForm(csrf.Token(r), values, errors.RegisterEmail).ServeHTTP(w, r)
+			} else {
+				http.Error(w, errors.RegisterEmail.ToString(), http.StatusBadRequest)
+			}
 		} else {
-			http.Error(w, "User already exists", http.StatusBadRequest)
+			if r.Header.Get("Hx-Request") != "" {
+				responseWithRegisterForm(csrf.Token(r), values, errors.RegisterUserExists).ServeHTTP(w, r)
+			} else {
+				http.Error(w, errors.RegisterUserExists.ToString(), http.StatusBadRequest)
+			}
 		}
 		return
 	}
 
-	http.Redirect(w, r, "/login", http.StatusSeeOther)
+	redirect(w, r, "/login")
+}
+
+func responseWithForgotForm(csrfToken string, values components.ForgotFormValues, err errors.HandlerError) *templ.ComponentHandler {
+	return templ.Handler(components.ForgotForm(components.ForgotFormProps{
+		CsrfToken: csrfToken,
+		Err:       err,
+		Values:    values,
+	}))
 }
 
 func (apiCfg *APIConfig) ForgotPasswordHandler(w http.ResponseWriter, r *http.Request) {
 	email := r.FormValue("email")
 
+	values := components.ForgotFormValues{
+		Email: email,
+	}
+
 	_, err := apiCfg.DB.GetUserByEmail(r.Context(), email)
 	if err != nil {
 		log.Println("Error finding user:", err)
-		http.Error(w, "User not found", http.StatusNotFound)
+		if r.Header.Get("Hx-Request") != "" {
+			responseWithForgotForm(csrf.Token(r), values, errors.ForgotNotFound).ServeHTTP(w, r)
+		} else {
+			http.Error(w, errors.ForgotNotFound.ToString(), http.StatusNotFound)
+		}
 		return
 	}
 
@@ -167,7 +222,12 @@ func (apiCfg *APIConfig) ForgotPasswordHandler(w http.ResponseWriter, r *http.Re
 
 	err = store.StoreToken(r.Context(), token, email, 30*time.Minute)
 	if err != nil {
-		http.Error(w, "Failed to generate reset token", http.StatusInternalServerError)
+		log.Println("Error generating reset token:", err)
+		if r.Header.Get("Hx-Request") != "" {
+			responseWithForgotForm(csrf.Token(r), values, errors.ForgotToken).ServeHTTP(w, r)
+		} else {
+			http.Error(w, errors.ForgotToken.ToString(), http.StatusInternalServerError)
+		}
 		return
 	}
 
@@ -176,11 +236,29 @@ func (apiCfg *APIConfig) ForgotPasswordHandler(w http.ResponseWriter, r *http.Re
 	if err != nil {
 		store.DeleteToken(r.Context(), token)
 		log.Println("Error sending reset email:", err)
-		http.Error(w, "Failed to send reset email", http.StatusInternalServerError)
+		if r.Header.Get("Hx-Request") != "" {
+			responseWithForgotForm(csrf.Token(r), values, errors.ForgotSend).ServeHTTP(w, r)
+		} else {
+			http.Error(w, errors.ForgotSend.ToString(), http.StatusInternalServerError)
+		}
 		return
 	}
 
-	w.Write([]byte("Password reset link sent! Check your email."))
+	if r.Header.Get("Hx-Request") != "" {
+		templ.Handler(components.ForgotForm(components.ForgotFormProps{
+			Success: true,
+		})).ServeHTTP(w, r)
+	} else {
+		w.Write([]byte("Password reset link sent! Check your email."))
+	}
+}
+
+func responseWithResetForm(csrfToken string, values components.ResetFormValues, err errors.HandlerError) *templ.ComponentHandler {
+	return templ.Handler(components.ResetForm(components.ResetFormProps{
+		CsrfToken: csrfToken,
+		Err:       err,
+		Values:    values,
+	}))
 }
 
 func (apiCfg *APIConfig) ResetPasswordHandler(w http.ResponseWriter, r *http.Request) {
@@ -188,14 +266,27 @@ func (apiCfg *APIConfig) ResetPasswordHandler(w http.ResponseWriter, r *http.Req
 	newPassword := r.FormValue("password")
 	newPasswordConfirm := r.FormValue("password_confirm")
 
+	values := components.ResetFormValues{
+		Password:        newPassword,
+		PasswordConfirm: newPasswordConfirm,
+	}
+
 	if newPassword != newPasswordConfirm {
-		http.Error(w, "Password does not match confirmation", http.StatusBadRequest)
+		if r.Header.Get("Hx-Request") != "" {
+			responseWithResetForm(csrf.Token(r), values, errors.ResetPassword).ServeHTTP(w, r)
+		} else {
+			http.Error(w, errors.ResetPassword.ToString(), http.StatusBadRequest)
+		}
 		return
 	}
 
 	email, err := store.GetEmailFromToken(r.Context(), token)
 	if err != nil {
-		http.Error(w, "Invalid or expired token", http.StatusBadRequest)
+		if r.Header.Get("Hx-Request") != "" {
+			responseWithResetForm(csrf.Token(r), values, errors.ResetToken).ServeHTTP(w, r)
+		} else {
+			http.Error(w, errors.ResetToken.ToString(), http.StatusBadRequest)
+		}
 		return
 	}
 
@@ -205,11 +296,15 @@ func (apiCfg *APIConfig) ResetPasswordHandler(w http.ResponseWriter, r *http.Req
 		Password: string(hashedPassword),
 	})
 	if err != nil {
-		http.Error(w, "Failed to reset password", http.StatusInternalServerError)
+		if r.Header.Get("Hx-Request") != "" {
+			responseWithResetForm(csrf.Token(r), values, errors.ResetFailed).ServeHTTP(w, r)
+		} else {
+			http.Error(w, errors.ResetFailed.ToString(), http.StatusInternalServerError)
+		}
 		return
 	}
 
 	store.DeleteToken(r.Context(), token)
 
-	w.Write([]byte("Password reset successful! You can now log in."))
+	redirect(w, r, "/login?reset")
 }

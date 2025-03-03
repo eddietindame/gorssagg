@@ -1,0 +1,12 @@
+package components
+
+type SplashFormLayoutProps struct {
+	Heading string
+}
+
+templ SplashFormLayout(props SplashFormLayoutProps) {
+	<div class="max-w-md mx-auto flex flex-col gap-2 justify-center h-full pb-[40%] opacity-fade-in">
+		<h1 class="text-3xl font-serif">{ props.Heading }</h1>
+		{ children... }
+	</div>
+}

@@ -1,0 +1,63 @@
+package components
+
+import "github.com/axzilla/templui/components"
+import "github.com/eddietindame/gorssagg/internal/config"
+import "github.com/eddietindame/gorssagg/internal/handlers/errors"
+
+type RegisterFormValues struct {
+	Username        string
+	Email           string
+	Password        string
+	ConfirmPassword string
+}
+
+type RegisterFormProps struct {
+	CsrfToken string
+	Err       errors.HandlerError
+	Values    RegisterFormValues
+}
+
+templ RegisterForm(props RegisterFormProps) {
+	@Form(FormProps{
+		PostTo: "/register",
+	}) {
+		<input type="hidden" name={ config.CsrfFormKey } value={ props.CsrfToken }/>
+		@components.Input(components.InputProps{
+			Name:        "username",
+			Placeholder: "Username",
+			Required:    true,
+			Value:       props.Values.Username,
+			HasError:    props.Err == errors.RegisterUsername,
+		})
+		@components.Input(components.InputProps{
+			Name:        "email",
+			Placeholder: "Email",
+			Required:    true,
+			Value:       props.Values.Email,
+			HasError:    props.Err == errors.RegisterEmail,
+		})
+		@components.Input(components.InputProps{
+			Type:        "password",
+			Name:        "password",
+			Placeholder: "Password",
+			Required:    true,
+			Value:       props.Values.Password,
+			HasError:    props.Err == errors.RegisterPassword,
+		})
+		@components.Input(components.InputProps{
+			Type:        "password",
+			Name:        "password_confirm",
+			Placeholder: "Confirm password",
+			Value:       props.Values.ConfirmPassword,
+			Required:    true,
+			HasError:    props.Err == errors.RegisterPassword,
+		})
+		@FormError(FormErrorProps{
+			Error: props.Err,
+		})
+		@components.Button(components.ButtonProps{
+			Type: "submit",
+			Text: "Register",
+		})
+	}
+}

@@ -1,0 +1,20 @@
+package components
+
+import "github.com/eddietindame/gorssagg/internal/handlers/errors"
+import "fmt"
+
+import templc "github.com/axzilla/templui/components"
+
+type FormErrorProps struct {
+	Error errors.HandlerError
+}
+
+templ FormError(props FormErrorProps) {
+	if props.Error != errors.Nil {
+		@templc.FormMessage(templc.FormMessageProps{
+			Message: fmt.Sprintf("%s.", props.Error.ToFriendlyString()),
+			Type:    "error",
+			Class:   "opacity-fade-in",
+		})
+	}
+}

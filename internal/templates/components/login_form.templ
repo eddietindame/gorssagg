@@ -2,42 +2,43 @@ package components
 
 import "github.com/axzilla/templui/components"
 import "github.com/eddietindame/gorssagg/internal/config"
+import "github.com/eddietindame/gorssagg/internal/handlers/errors"
 
-type LoginFormErrors struct {
-	Generic     bool
-	Credentials bool
+type LoginFormValues struct {
+	Username   string
+	Password   string
+	RememberMe bool
 }
 
-templ LoginForm(csrfToken string, errors LoginFormErrors) {
-	<form hx-post="/login" hx-swap="outer-html" class="flex flex-col gap-2">
-		<input type="hidden" name={ config.CsrfFormKey } value={ csrfToken }/>
+type LoginFormProps struct {
+	CsrfToken string
+	Err       errors.HandlerError
+	Values    LoginFormValues
+}
+
+templ LoginForm(props LoginFormProps) {
+	@Form(FormProps{
+		PostTo: "/login",
+	}) {
+		<input type="hidden" name={ config.CsrfFormKey } value={ props.CsrfToken }/>
 		@components.Input(components.InputProps{
 			Name:        "username",
 			Placeholder: "Username",
 			Required:    true,
-			HasError:    errors.Credentials,
+			Value:       props.Values.Username,
+			HasError:    props.Err == errors.LoginCredentials,
 		})
 		@components.Input(components.InputProps{
 			Type:        "password",
 			Name:        "password",
 			Placeholder: "Password",
 			Required:    true,
-			HasError:    errors.Credentials,
+			Value:       props.Values.Password,
+			HasError:    props.Err == errors.LoginCredentials,
 		})
-		if errors.Generic {
-			@components.FormMessage(components.FormMessageProps{
-				Message: "Something went wrong.",
-				Type:    "error",
-				Class:   "opacity-fade-in",
-			})
-		}
-		if errors.Credentials {
-			@components.FormMessage(components.FormMessageProps{
-				Message: "Invalid username or password.",
-				Type:    "error",
-				Class:   "opacity-fade-in",
-			})
-		}
+		@FormError(FormErrorProps{
+			Error: props.Err,
+		})
 		@components.Button(components.ButtonProps{
 			Type: "submit",
 			Text: "Login",
@@ -46,12 +47,12 @@ templ LoginForm(csrfToken string, errors LoginFormErrors) {
 			@components.Checkbox(components.CheckboxProps{
 				ID:      "remember-me",
 				Name:    "remember_me",
-				Checked: true,
+				Checked: props.Values.RememberMe,
 			})
 			@components.Label(components.LabelProps{
 				For:  "remember-me",
 				Text: "Remember me",
 			})
 		</div>
-	</form>
+	}
 }

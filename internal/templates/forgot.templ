@@ -1,22 +1,13 @@
 package templates
 
-import "github.com/axzilla/templui/components"
-import "github.com/eddietindame/gorssagg/internal/config"
+import "github.com/eddietindame/gorssagg/internal/templates/components"
 
 templ Forgot(csrfToken string) {
-	<div class="max-w-md mx-auto flex flex-col gap-2 justify-center h-full pb-[40%] opacity-fade-in">
-		<h1 class="text-3xl font-serif">Forgotten your password?</h1>
-		<form action="/forgot-password" method="POST" class="flex flex-col gap-2">
-			<input type="hidden" name={ config.CsrfFormKey } value={ csrfToken }/>
-			@components.Input(components.InputProps{
-				Name:        "email",
-				Placeholder: "Email",
-				Required:    true,
-			})
-			@components.Button(components.ButtonProps{
-				Type: "submit",
-				Text: "Submit",
-			})
-		</form>
-	</div>
+	@components.SplashFormLayout(components.SplashFormLayoutProps{
+		Heading: "Forgotten your password?",
+	}) {
+		@components.ForgotForm(components.ForgotFormProps{
+			CsrfToken: csrfToken,
+		})
+	}
 }

@@ -1,39 +1,13 @@
 package templates
 
-import "github.com/axzilla/templui/components"
-import "github.com/eddietindame/gorssagg/internal/config"
+import "github.com/eddietindame/gorssagg/internal/templates/components"
 
 templ Register(csrfToken string) {
-	<div class="max-w-md mx-auto flex flex-col gap-2 justify-center h-full pb-[40%] opacity-fade-in">
-		<h1 class="text-3xl font-serif">Register</h1>
-		<form action="/register" method="POST" class="flex flex-col gap-2">
-			<input type="hidden" name={ config.CsrfFormKey } value={ csrfToken }/>
-			@components.Input(components.InputProps{
-				Name:        "username",
-				Placeholder: "Username",
-				Required:    true,
-			})
-			@components.Input(components.InputProps{
-				Name:        "email",
-				Placeholder: "Email",
-				Required:    true,
-			})
-			@components.Input(components.InputProps{
-				Type:        "password",
-				Name:        "password",
-				Placeholder: "Password",
-				Required:    true,
-			})
-			@components.Input(components.InputProps{
-				Type:        "password",
-				Name:        "password_confirm",
-				Placeholder: "Confirm password",
-				Required:    true,
-			})
-			@components.Button(components.ButtonProps{
-				Type: "submit",
-				Text: "Register",
-			})
-		</form>
-	</div>
+	@components.SplashFormLayout(components.SplashFormLayoutProps{
+		Heading: "Register",
+	}) {
+		@components.RegisterForm(components.RegisterFormProps{
+			CsrfToken: csrfToken,
+		})
+	}
 }

@@ -1,14 +1,27 @@
 package templates
 
-import "github.com/eddietindame/gorssagg/internal/config"
+import "github.com/eddietindame/gorssagg/internal/templates/components"
+import "github.com/eddietindame/gorssagg/internal/handlers/errors"
 
-templ Reset(csrfToken string, resetToken string) {
-	<h2>Reset your password</h2>
-	<form action="/reset-password" method="POST">
-		<input type="hidden" name={ config.CsrfFormKey } value={ csrfToken }/>
-		<input type="hidden" name="token" value={ resetToken }/>
-		<input type="password" name="password" placeholder="New password" required/>
-		<input type="password" name="password_confirm" placeholder="Confirm new password" required/>
-		<button type="submit">Reset</button>
-	</form>
+type ResetProps struct {
+	CsrfToken  string
+	ResetToken string
+	Err        errors.HandlerError
+}
+
+templ Reset(props ResetProps) {
+	if props.Err == errors.Nil {
+		@components.SplashFormLayout(components.SplashFormLayoutProps{
+			Heading: "Reset your password",
+		}) {
+			@components.ResetForm(components.ResetFormProps{
+				CsrfToken:  props.CsrfToken,
+				ResetToken: props.ResetToken,
+			})
+		}
+	} else {
+		<div class="rounded bg-red-100 p-4">
+			⚠️ Invalid or expired token.
+		</div>
+	}
 }

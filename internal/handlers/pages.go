@@ -4,6 +4,7 @@ import (
 	"net/http"
 
 	"github.com/a-h/templ"
+	"github.com/eddietindame/gorssagg/internal/handlers/errors"
 	"github.com/eddietindame/gorssagg/internal/store"
 	"github.com/eddietindame/gorssagg/internal/templates"
 	"github.com/gorilla/csrf"
@@ -14,7 +15,10 @@ func handlerWithLayout(contents templ.Component, title string) *templ.ComponentH
 }
 
 func LoginPageHandler(w http.ResponseWriter, r *http.Request) {
-	handlerWithLayout(templates.Login(csrf.Token(r)), "Login").ServeHTTP(w, r)
+	handlerWithLayout(templates.Login(templates.LoginProps{
+		CsrfToken: csrf.Token(r),
+		Reset:     r.URL.Query().Has("reset"),
+	}), "Login").ServeHTTP(w, r)
 }
 
 func RegisterPageHandler(w http.ResponseWriter, r *http.Request) {
@@ -26,19 +30,28 @@ func ForgotPageHandler(w http.ResponseWriter, r *http.Request) {
 }
 
 func ResetPageHandler(w http.ResponseWriter, r *http.Request) {
+	heading := "Reset password"
 	token := r.URL.Query().Get("token")
+
 	if token == "" {
-		http.Error(w, "Invalid token", http.StatusBadRequest)
+		handlerWithLayout(templates.Reset(templates.ResetProps{
+			Err: errors.ResetToken,
+		}), heading).ServeHTTP(w, r)
 		return
 	}
 
 	_, err := store.GetEmailFromToken(r.Context(), token)
 	if err != nil {
-		http.Error(w, "Invalid or expired token", http.StatusBadRequest)
+		handlerWithLayout(templates.Reset(templates.ResetProps{
+			Err: errors.ResetToken,
+		}), heading).ServeHTTP(w, r)
 		return
 	}
 
-	handlerWithLayout(templates.Reset(csrf.Token(r), token), "Reset password").ServeHTTP(w, r)
+	handlerWithLayout(templates.Reset(templates.ResetProps{
+		CsrfToken:  csrf.Token(r),
+		ResetToken: token,
+	}), heading).ServeHTTP(w, r)
 }
 
 func DashboardPageHandler(w http.ResponseWriter, r *http.Request) {
