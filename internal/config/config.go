@@ -9,7 +9,8 @@ import (
 	"github.com/joho/godotenv"
 )
 
-var CsrfFormKey = "gorilla.csrf.Token"
+const CsrfFormKey string = "gorilla.csrf.Token"
+const CsrfHeaderKey string = "X-CSRF-Token"
 
 // Set to production at build time
 var Environment = "development"

@@ -1,0 +1,49 @@
+package components
+
+import "github.com/axzilla/templui/components"
+import "github.com/eddietindame/gorssagg/internal/config"
+import "github.com/eddietindame/gorssagg/internal/models"
+import "github.com/eddietindame/gorssagg/internal/handlers/errors"
+
+type FollowedFeedsProps struct {
+	CsrfToken     string
+	FeedUrl       string
+	Err           errors.HandlerError
+	FollowedFeeds []models.FollowedFeed
+}
+
+templ FollowedFeeds(props FollowedFeedsProps) {
+	<div id="feeds">
+		<form
+			hx-post="/feeds"
+			hx-swap="outerHTML"
+			hx-target="#feeds-list"
+			hx-disabled-elt="find button"
+			hx-indicator="#spinner"
+			class="mb-4"
+		>
+			<div class="flex mb-2">
+				<input type="hidden" name={ config.CsrfFormKey } value={ props.CsrfToken }/>
+				@components.Input(components.InputProps{
+					Name:        "feed_url",
+					Placeholder: "Feed URL",
+					Required:    true,
+					Value:       props.FeedUrl,
+					HasError:    props.Err == errors.FeedInvalid,
+					Class:       "rounded-none rounded-l",
+				})
+				@components.Button(components.ButtonProps{
+					Type:  "submit",
+					Text:  "Add",
+					Class: "rounded-none rounded-r",
+				}) {
+					<div id="spinner" class="loader animate-spin inline-block mr-2 htmx-indicator"></div>
+				}
+			</div>
+			<div id="feeds-error"></div>
+		</form>
+		@FollowedFeedList(FollowedFeedListProps{
+			FollowedFeeds: props.FollowedFeeds,
+		})
+	</div>
+}

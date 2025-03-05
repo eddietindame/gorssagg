@@ -74,10 +74,10 @@ func (apiCfg *APIConfig) LoginHandler(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	session.Values["authenticated"] = true
-	session.Values["user_id"] = user.ID.String()
-	session.Values["email"] = user.Email
-	session.Values["username"] = username
+	session.Values[store.Authenticated] = true
+	session.Values[store.UserID] = user.ID.String()
+	session.Values[store.Email] = user.Email
+	session.Values[store.Username] = username
 
 	if rememberMe {
 		session.Options.MaxAge = 86400 * 30 // 30 days

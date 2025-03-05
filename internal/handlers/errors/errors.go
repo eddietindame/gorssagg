@@ -17,6 +17,12 @@ const (
 	ResetPassword      HandlerError = "Passwords do not match"
 	ResetToken         HandlerError = "Invalid or expired token"
 	ResetFailed        HandlerError = "Failed to reset password"
+	FeedInvalid        HandlerError = "Invalid feed url"
+	FeedFetch          HandlerError = "Couldn't fetch feed"
+	FeedCreate         HandlerError = "Error creating feed"
+	FeedRead           HandlerError = "Error reading feed"
+	FollowCreate       HandlerError = "Error creating follow"
+	FollowedFeedsRead  HandlerError = "Error fetching followed feeds"
 )
 
 func (err HandlerError) ToString() string {
@@ -25,7 +31,15 @@ func (err HandlerError) ToString() string {
 
 func (err HandlerError) ToFriendlyString() string {
 	switch err {
-	case ServerError, SessionError, ForgotToken, ForgotSend, ResetFailed:
+	case ServerError,
+		SessionError,
+		ForgotToken,
+		ForgotSend,
+		ResetFailed,
+		FeedRead,
+		FeedCreate,
+		FollowCreate,
+		FollowedFeedsRead:
 		return "Something went wrong"
 	default:
 		return err.ToString()

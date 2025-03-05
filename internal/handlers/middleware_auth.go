@@ -6,7 +6,9 @@ import (
 
 	"github.com/eddietindame/gorssagg/internal/auth"
 	"github.com/eddietindame/gorssagg/internal/database"
+	"github.com/eddietindame/gorssagg/internal/handlers/ctx"
 	"github.com/eddietindame/gorssagg/internal/store"
+	"github.com/google/uuid"
 )
 
 type authHandler func(http.ResponseWriter, *http.Request, database.User)
@@ -37,12 +39,26 @@ func MiddlewareSessionAuth(handler http.Handler) http.Handler {
 			return
 		}
 
-		auth, ok := session.Values["authenticated"].(bool)
+		auth, ok := session.Values[store.Authenticated].(bool)
 		if !ok || !auth {
 			http.Redirect(w, r, "/login", http.StatusSeeOther)
 			return
 		}
 
-		handler.ServeHTTP(w, r)
+		email := session.Values[store.Email].(string)
+		username := session.Values[store.Username].(string)
+		userId, err := uuid.Parse(session.Values[store.UserID].(string))
+		if err != nil || email == "" || username == "" {
+			// TODO: redirect
+			return
+		}
+
+		user := ctx.UserContext{
+			UserID:   userId,
+			Username: username,
+			Email:    email,
+		}
+
+		handler.ServeHTTP(w, r.WithContext(ctx.NewContextWithUser(r.Context(), user)))
 	})
 }

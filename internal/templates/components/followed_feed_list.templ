@@ -1,0 +1,25 @@
+package components
+
+import "github.com/eddietindame/gorssagg/internal/models"
+
+type FollowedFeedListProps struct {
+	FollowedFeeds []models.FollowedFeed
+}
+
+templ FollowedFeedList(props FollowedFeedListProps) {
+	<div id="feeds-list" class="separated-list">
+		if len(props.FollowedFeeds) == 0 {
+			<div class="">You are not currently following any feeds.</div>
+		} else {
+			for _, followedFeed := range props.FollowedFeeds {
+				@FollowedFeed(FollowedFeedProps{
+					Name:        followedFeed.Name,
+					Image:       followedFeed.Image,
+					Description: followedFeed.Description,
+					Url:         templ.SafeURL(followedFeed.Url),
+					FollowID:    followedFeed.FollowID,
+				})
+			}
+		}
+	</div>
+}

@@ -103,3 +103,27 @@
     opacity: 1;
   }
 }
+
+.htmx-indicator {
+  display: none;
+}
+
+.htmx-request .htmx-indicator,
+.htmx-request.htmx-indicator {
+  display: inline-block;
+}
+
+.loader {
+  height: 100%;
+  aspect-ratio: 1 / 1;
+  border: 2px solid #fff;
+  border-bottom-color: transparent;
+  border-radius: 50%;
+  box-sizing: border-box;
+}
+
+.separated-list > div:not(:last-child)::after {
+  @apply mb-4 block;
+  content: ' ';
+  border-bottom: black solid 1px;
+}

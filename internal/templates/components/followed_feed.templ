@@ -1,0 +1,56 @@
+package components
+
+import "github.com/axzilla/templui/components"
+import "github.com/axzilla/templui/icons"
+import "github.com/google/uuid"
+import "fmt"
+
+type FollowedFeedProps struct {
+	Name        string
+	Image       string
+	Description string
+	Url         templ.SafeURL
+	FollowID    uuid.UUID
+}
+
+func getImageSrc(src string) string {
+	if src == "" {
+		// TODO: use real image fallback
+		return "https://placehold.co/300x300.png"
+	} else {
+		return src
+	}
+}
+
+templ FollowedFeed(props FollowedFeedProps) {
+	<div>
+		<div class="flex mb-4">
+			<div class="flex items-center aspect-square max-w-20 mr-4">
+				<img src={ getImageSrc(props.Image) } alt={ props.Description }/>
+			</div>
+			<div class="flex-1 flex flex-col">
+				<div class="text-2xl font-serif italic">{ props.Name }</div>
+				<p>{ props.Description }</p>
+				<div>
+					@Link(LinkProps{
+						Href: templ.SafeURL(props.Url),
+						Text: "Visit",
+					})
+				</div>
+			</div>
+			<div class="flex items-center">
+				@components.Button(components.ButtonProps{
+					IconLeft: icons.CircleX(icons.IconProps{Size: "20"}),
+					Variant:  "destructive",
+					Attributes: templ.Attributes{
+						"hx-delete":       fmt.Sprintf("/follows/%s", props.FollowID),
+						"hx-swap":         "outerHTML",
+						"hx-target":       "#feeds-list",
+						"hx-disabled-elt": "this",
+					},
+					Class: "h-full",
+				})
+			</div>
+		</div>
+	</div>
+}

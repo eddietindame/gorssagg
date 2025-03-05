@@ -8,13 +8,13 @@ package components
 import "github.com/a-h/templ"
 import templruntime "github.com/a-h/templ/runtime"
 
-import "github.com/eddietindame/gorssagg/internal/database"
+import "github.com/eddietindame/gorssagg/internal/models"
 
-type FeedsProps struct {
-	Feeds []database.Feed
+type FollowedFeedListProps struct {
+	FollowedFeeds []models.FollowedFeed
 }
 
-func Feeds(props FeedsProps) templ.Component {
+func FollowedFeedList(props FollowedFeedListProps) templ.Component {
 	return templruntime.GeneratedTemplate(func(templ_7745c5c3_Input templruntime.GeneratedComponentInput) (templ_7745c5c3_Err error) {
 		templ_7745c5c3_W, ctx := templ_7745c5c3_Input.Writer, templ_7745c5c3_Input.Context
 		if templ_7745c5c3_CtxErr := ctx.Err(); templ_7745c5c3_CtxErr != nil {
@@ -35,7 +35,30 @@ func Feeds(props FeedsProps) templ.Component {
 			templ_7745c5c3_Var1 = templ.NopComponent
 		}
 		ctx = templ.ClearChildren(ctx)
-		templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 1, "<div class=\"\"></div>")
+		templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 1, "<div id=\"feeds-list\" class=\"separated-list\">")
+		if templ_7745c5c3_Err != nil {
+			return templ_7745c5c3_Err
+		}
+		if len(props.FollowedFeeds) == 0 {
+			templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 2, "<div class=\"\">You are not currently following any feeds.</div>")
+			if templ_7745c5c3_Err != nil {
+				return templ_7745c5c3_Err
+			}
+		} else {
+			for _, followedFeed := range props.FollowedFeeds {
+				templ_7745c5c3_Err = FollowedFeed(FollowedFeedProps{
+					Name:        followedFeed.Name,
+					Image:       followedFeed.Image,
+					Description: followedFeed.Description,
+					Url:         templ.SafeURL(followedFeed.Url),
+					FollowID:    followedFeed.FollowID,
+				}).Render(ctx, templ_7745c5c3_Buffer)
+				if templ_7745c5c3_Err != nil {
+					return templ_7745c5c3_Err
+				}
+			}
+		}
+		templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 3, "</div>")
 		if templ_7745c5c3_Err != nil {
 			return templ_7745c5c3_Err
 		}

@@ -1,12 +1,15 @@
 package templates
 
 import "github.com/axzilla/templui/helpers"
+import "github.com/eddietindame/gorssagg/internal/config"
 
-templ header(title string) {
+templ header(title string, csrfToken string) {
 	<head>
 		<title>{ title }</title>
 		<meta charset="UTF-8"/>
 		<meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+		<meta name="csrf-token" content={ csrfToken }/>
+		<meta name="csrf-token-key" content={ config.CsrfHeaderKey }/>
 		<link rel="stylesheet" href="/public/css/styles.css"/>
 		<script defer src="https://cdn.jsdelivr.net/npm/@alpinejs/csp@3.x.x/dist/cdn.min.js"></script>
 		<script src="https://unpkg.com/htmx.org@2.0.4" integrity="sha384-HGfztofotfshcF7+8n44JQL2oJmowVChPTg48S+jvZoztPfvwD79OC/LTtG6dMp+" crossorigin="anonymous"></script>
@@ -14,8 +17,8 @@ templ header(title string) {
 	</head>
 }
 
-templ Layout(contents templ.Component, title string) {
-	@header(title)
+templ Layout(contents templ.Component, title string, csrfToken string) {
+	@header(title, csrfToken)
 	<body class="flex flex-col h-full">
 		<main class="flex-1 container m-width-3xl mx-auto p-4">
 			@contents
@@ -23,11 +26,27 @@ templ Layout(contents templ.Component, title string) {
 	</body>
 }
 
-templ LayoutFull(contents templ.Component, title string) {
-	@header(title)
+templ LayoutFull(contents templ.Component, title string, csrfToken string) {
+	@header(title, csrfToken)
 	<body class="flex flex-col h-full">
 		<main class="flex-1 flex flex-col">
 			@contents
 		</main>
+		<script>
+			document.body.addEventListener('htmx:configRequest', function({ detail }) {
+				detail.headers[
+					document.querySelector('meta[name="csrf-token-key"]').content
+				] = document.querySelector('meta[name="csrf-token"]').content
+			})
+			document.body.addEventListener('htmx:beforeSwap', function({ detail }) {
+				if (detail.isError) {
+					const targetId = detail.elt.id
+					const newTarget = `#${targetId.split('-')[0]}-error`
+					detail.shouldSwap = true
+					detail.swapOverride = 'innerHTML'
+					detail.target = document.querySelector(newTarget)
+				}
+			})
+		</script>
 	</body>
 }
